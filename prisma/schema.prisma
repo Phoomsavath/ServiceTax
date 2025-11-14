@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum InvoiceType {
+  QUOTATION
+  INVOICE
+}
+
+enum PaidType {
+  UNPAID
+  PAID
+}
+
+enum ActiveState {
+  ACTIVE
+  INACTIVE
+}
+
+enum BillType {
+  BILL_SERVICE
+  RECEIPT_SERVICE
+}
+
+enum Permission {
+  USER_VIEW
+  USER_CREATE
+  USER_UPDATE
+  USER_DELETE
+
+  COMPANY_VIEW
+  COMPANY_CREATE
+  COMPANY_UPDATE
+  COMPANY_DELETE
+
+  BILL_VIEW
+  BILL_CREATE
+  BILL_UPDATE
+  BILL_DELETE
+
+  SALE_INVOICE_VIEW
+  SALE_INVOICE_CREATE
+  SALE_INVOICE_UPDATE
+  SALE_INVOICE_DELETE
+
+  SERVICE_VIEW
+  SERVICE_CREATE
+  SERVICE_UPDATE
+  SERVICE_DELETE
+}
+
+model User {
+  id                  Int              @id @default(autoincrement())
+  userName            String           @unique
+  fullName            String?
+  password            String
+  activeStatus        ActiveState      @default(ACTIVE)
+  currentToken        String?
+  permissions         Json?
+  role                Role             @default(EMPLOYEE)
+  productsCreator     Service[]        @relation("ServiceCreator")
+  productsUpdater     Service[]        @relation("ServiceUpdater")
+  saleInvoicesCreator SaleInvoice[]    @relation("SaleInvoiceCreator")
+  saleInvoicesUpdater SaleInvoice[]    @relation("SaleInvoiceUpdater")
+  billsCreator        ReceiptService[] @relation("BillCreator")
+  billsUpdater        ReceiptService[] @relation("BillUpdater")
+}
+
+enum Category {
+  OFFICER_SERVICE
+  TAX_SERVICE
+  DELIVERY
+  WAREHOUSE_SERVICE
+  GOVERNMENT_SERVICE
+  GOVERNMENT_VAT
+}
+
+enum Unit {
+  CARS
+  FILES
+  PAGES
+  PERSON
+}
+
+model Service {
+  id                   Int                   @id @default(autoincrement())
+  activeStatus         ActiveState           @default(ACTIVE)
+  name                 String
+  descriptions         String?
+  cost                 Decimal               @db.Decimal(10, 2)
+  price                Decimal               @db.Decimal(10, 2)
+  unit                 Unit                  @default(FILES)
+  category             Category              @default(WAREHOUSE_SERVICE)
+  createdById          Int
+  createdBy            User                  @relation("ServiceCreator", fields: [createdById], references: [id])
+  updatedById          Int?
+  updatedBy            User?                 @relation("ServiceUpdater", fields: [updatedById], references: [id])
+  saleInvoice_Products SaleInvoice_Service[]
+
+  @@unique([name, category])
+}
+
+model Company {
+  id              Int              @id @default(autoincrement())
+  activeStatus    ActiveState      @default(ACTIVE)
+  name            String
+  taxNumber       String
+  phone           String
+  email           String
+  address         String
+  managerContact  String?
+  saleInvoices    SaleInvoice[]
+  receiptServices ReceiptService[]
+}
+
+model SaleInvoice {
+  id            Int         @id @default(autoincrement())
+  saleInvoiceNo String
+  deliveryPoint String
+  type          InvoiceType @default(QUOTATION)
+
+  quotation       SaleInvoice? @relation("SaleInvoiceSelf", fields: [quotationId], references: [id])
+  quotationId     Int?         @unique
+  subSaleInvoices SaleInvoice? @relation("SaleInvoiceSelf")
+
+  paidStatus  PaidType  @default(UNPAID)
+  netDate     DateTime?
+  totalAmount Decimal   @db.Decimal(10, 2)
+  vat         Decimal   @db.Decimal(10, 2)
+
+  year  Int
+  month Int
+
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt           DateTime              @default(now()) // created at
+  billId              Int?
+  receiptService      ReceiptService?       @relation(fields: [billId], references: [id])
+  createdById         Int
+  createdBy           User                  @relation("SaleInvoiceCreator", fields: [createdById], references: [id])
+  updatedById         Int?
+  updatedBy           User?                 @relation("SaleInvoiceUpdater", fields: [updatedById], references: [id])
+  saleInvoiceServices SaleInvoice_Service[]
+
+  @@unique([saleInvoiceNo, type])
+  @@index([type])
+  @@index([createdById])
+  @@index([saleInvoiceNo])
+  @@index([year, month])
+}
+
+model SaleInvoice_Service {
+  id        Int         @id @default(autoincrement())
+  invoiceId Int
+  invoice   SaleInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  serviceId Int
+  service   Service     @relation(fields: [serviceId], references: [id])
+  quantity  Float
+  vat       Decimal     @db.Decimal(10, 2)
+  cost      Decimal     @db.Decimal(10, 2)
+  price     Decimal     @db.Decimal(10, 2)
+}
+
+model ReceiptService {
+  id           Int             @id @default(autoincrement())
+  invoiceNo    String
+  type         BillType        @default(BILL_SERVICE)
+  companyId    Int
+  company      Company         @relation(fields: [companyId], references: [id])
+  totalAmount  Decimal         @db.Decimal(10, 2)
+  vat          Decimal         @db.Decimal(10, 2)
+  year         Int
+  month        Int
+  billId       Int?            @unique
+  bill         ReceiptService? @relation("BillSelf", fields: [billId], references: [id])
+  subBills     ReceiptService? @relation("BillSelf")
+  createdAt    DateTime        @default(now())
+  createdById  Int
+  createdBy    User            @relation("BillCreator", fields: [createdById], references: [id])
+  updatedById  Int?
+  updatedBy    User?           @relation("BillUpdater", fields: [updatedById], references: [id])
+  saleInvoices SaleInvoice[]
+
+  @@unique([invoiceNo, type])
+  @@index([type])
+  @@index([createdById])
+  @@index([invoiceNo])
+  @@index([year, month])
+}

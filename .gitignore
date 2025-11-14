@@ -460,3 +460,5 @@ FodyWeavers.xsd
 *.msm
 *.msp
 >>>>>>> fc73ce98560e052ed675a118d87aaf8398c1e73d
+
+/lib/generated/prisma
