@@ -330,60 +330,76 @@ export default function ServicesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {services.map((service: any) => (
-                <tr key={service.id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                    {service.stt}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                    {service.name}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {CategoryTranslation[service.category as Category]}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {formatCurrency(service.cost)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {formatCurrency(service.price)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {service.createdBy?.fullName || "-"}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {service.updatedBy?.fullName || "-"}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {
-                      activeStatusTranslation[
-                        service.activeStatus as ActiveState
-                      ]
-                    }
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-2">
-                      {hasPermission(PermissionConst.SERVICE_UPDATE) && (
-                        <button
-                          onClick={() => showProductForm(service)}
-                          className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition"
-                        >
-                          <Edit size={14} />
-                          {messageTranslation.Update}
-                        </button>
-                      )}
-                      {hasPermission(PermissionConst.SERVICE_DELETE) && (
-                        <button
-                          onClick={() => handleActiveStatus(service)}
-                          className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition"
-                        >
-                          <Trash size={14} />
-                          {messageTranslation.SettingStatus}
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {services.map(
+                (service: {
+                  id: string;
+                  stt: number;
+                  name: string;
+                  category: Category;
+                  cost: number;
+                  price: number;
+                  createdBy: { fullName: string };
+                  updatedBy: { fullName: string };
+                  activeStatus: ActiveState;
+                }) => (
+                  <tr key={service.id} className="hover:bg-gray-50 transition">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                      {service.stt}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                      {service.name}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {CategoryTranslation[service.category as Category]}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {formatCurrency(service.cost)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {formatCurrency(service.price)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {service.createdBy?.fullName || "-"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {service.updatedBy?.fullName || "-"}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <span
+                        className={`font-medium ${
+                          service.activeStatus === ActiveState.ACTIVE
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {activeStatusTranslation[service.activeStatus]}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
+                        {hasPermission(PermissionConst.SERVICE_UPDATE) && (
+                          <button
+                            onClick={() => showProductForm(service)}
+                            className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition"
+                          >
+                            <Edit size={14} />
+                            {messageTranslation.Update}
+                          </button>
+                        )}
+                        {hasPermission(PermissionConst.SERVICE_DELETE) && (
+                          <button
+                            onClick={() => handleActiveStatus(service)}
+                            className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition"
+                          >
+                            <Trash size={14} />
+                            {messageTranslation.SettingStatus}
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              )}
             </tbody>
           </table>
         )}

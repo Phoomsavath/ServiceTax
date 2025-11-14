@@ -322,6 +322,9 @@ export default function CustomerPage() {
                   {messageTranslation.Address}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {messageTranslation.ActiveStatus}
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -334,6 +337,7 @@ export default function CustomerPage() {
                   name: string;
                   phone: string;
                   address: string;
+                  activeStatus: ActiveState;
                 }) => (
                   <tr key={company.id} className="hover:bg-gray-50 transition">
                     <td className="px-6 py-4 text-sm font-medium text-gray-800">
@@ -347,6 +351,17 @@ export default function CustomerPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
                       {company.address || "-"}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <span
+                        className={`font-medium ${
+                          company.activeStatus === ActiveState.ACTIVE
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {activeStatusTranslation[company.activeStatus]}
+                      </span>
                     </td>
 
                     <td className="px-6 py-4">

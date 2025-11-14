@@ -39,6 +39,8 @@ export async function GET(request: NextRequest) {
           skip,
           take: limit,
           where,
+          orderBy: { createdAt: "desc" },
+
           select: {
             id: true,
             subBills: { select: { id: true, saleInvoices: true } },

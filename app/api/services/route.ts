@@ -2,6 +2,7 @@
 import { messageTranslation } from "@/lib/constant";
 import prisma from "@/lib/prisma";
 import { getAuth } from "@/lib/requirePermission";
+import { ActiveState } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -36,6 +37,7 @@ export async function GET(request: NextRequest) {
           skip,
           take: limit,
           where,
+          orderBy: { id: "desc" },
         }),
         prisma.service.count({ where }),
       ]);
@@ -61,7 +63,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch all mode
     const data = await prisma.service.findMany({
-      where,
+      where: { ...where, activeStatus: ActiveState.ACTIVE },
     });
 
     const total = data.length;
