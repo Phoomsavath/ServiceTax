@@ -5,7 +5,11 @@ import { useActionState, useEffect, useState } from "react";
 import { useAlert } from "@/app/hooks/useAlert";
 import { Role, Permission } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { initialState, messageTranslation } from "@/lib/constant";
+import {
+  initialState,
+  messageTranslation,
+  PermissionConst,
+} from "@/lib/constant";
 import { createUser } from "@/action/users";
 import { withPermission } from "@/components/withPermission";
 
@@ -366,4 +370,4 @@ function CreateAccountPage() {
     </div>
   );
 }
-export default withPermission(CreateAccountPage, Permission.USER_CREATE);
+export default withPermission(CreateAccountPage, PermissionConst.USER_CREATE);

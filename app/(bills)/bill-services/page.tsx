@@ -17,17 +17,14 @@ import {
   searchBy,
   viewMode,
 } from "@/lib/constant";
-import { BillType, InvoiceType, PaidType } from "@prisma/client";
-import CreateSaleInvoiceForm from "@/components/form/Sale-invoice/CreateSaleInvoiceForm";
-import EditSaleInvoiceForm from "@/components/form/Sale-invoice/EditSaleInvoiceForm";
-import ViewSaleInvoice from "@/components/form/Sale-invoice/ViewSaleInvoice";
+import { BillType } from "@prisma/client";
 import { useAlert } from "@/app/hooks/useAlert";
 import Loader from "@/components/Loader";
 import Swal from "sweetalert2";
-import { promoteQuotationToInvoice } from "@/action/saleInvoice";
 import CreateBillForm from "@/components/form/Bill/CreateBillForm";
 import EditBillForm from "@/components/form/Bill/EditBillForm";
 import { promoteBillToReceiptService } from "@/action/bills";
+import ViewBill from "@/components/form/Bill/ViewBill";
 
 export default function BillPage() {
   const [mode, setMode] = useState<viewMode>(viewMode.List);
@@ -72,26 +69,14 @@ export default function BillPage() {
       html: `
           <div style="text-align: left;">
             <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
-              messageTranslation.QuotationNo
+              messageTranslation.BillService
             }</label>
             <input 
-              id="swal-quotationNo" 
-              class="swal2-input" 
-              
+              id="swal-bill-invoice"
+              class="swal2-input"
               disabled
-              value="${bill?.saleInvoiceNo || ""}"
+              value="${bill?.invoiceNo || ""}"
               style="margin-bottom: 15px; background-color: #f5f5f5; color: #888; cursor: not-allowed;"
-            >
-            <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
-              messageTranslation.InvoiceNo
-            }
-            </label>
-            <input 
-              id="swal-invoiceNo" 
-              class="swal2-input" 
-              placeholder="${messageTranslation.Placeholder}"
-              value=""
-              style="margin-bottom: 15px;"
             >
           </div>
         `,
@@ -100,22 +85,13 @@ export default function BillPage() {
       showCancelButton: true,
       cancelButtonText: messageTranslation.Cancel,
       width: "600px",
-      preConfirm: () => {
-        const invoiceNo = (
-          document.getElementById("swal-invoiceNo") as HTMLInputElement
-        )?.value?.trim();
-
-        return {
-          invoiceNo,
-        };
-      },
     });
 
     if (formData) {
       let result;
       showProcessing();
 
-      result = await promoteBillToReceiptService(bill.id, formData.invoiceNo);
+      result = await promoteBillToReceiptService(bill.id);
 
       closeProcessing();
 
@@ -152,12 +128,13 @@ export default function BillPage() {
     );
   if (mode === viewMode.View && selectedId)
     return (
-      <ViewSaleInvoice
-        invoiceId={selectedId}
+      <ViewBill
+        billId={selectedId}
         textOnly={messageTranslation.Quotation}
         onClose={handleBackToList}
       />
     );
+
   return (
     <div className="p-8 max-w-7xl mx-auto">
       {/* Header */}
@@ -236,6 +213,9 @@ export default function BillPage() {
                     {messageTranslation.CreatedAt}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {messageTranslation.ReceiptService}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.TotalAmount}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -251,31 +231,34 @@ export default function BillPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {bills.map((invoice: any) => (
-                  <tr key={invoice.id} className="hover:bg-gray-50 transition">
+                {bills.map((bill: any) => (
+                  <tr key={bill.id} className="hover:bg-gray-50 transition">
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {invoice.stt}
+                      {bill.stt}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-blue-600">
-                      {invoice.invoiceNo}
+                      {bill.invoiceNo}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {formatDate(invoice.createdAt)}
+                      {formatDate(bill.createdAt)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {bill.subBills?.invoiceNo || "-"}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                      {formatCurrency(invoice.totalAmount)}
+                      {formatCurrency(bill.totalAmount)}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {invoice.createdBy?.fullName || "-"}
+                      {bill.createdBy?.fullName || "-"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {invoice.updatedBy?.fullName || "-"}
+                      {bill.updatedBy?.fullName || "-"}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         <button
                           onClick={() => {
-                            setSelectedId(invoice.id);
+                            setSelectedId(bill.id);
                             setMode(viewMode.View);
                           }}
                           className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition"
@@ -283,13 +266,13 @@ export default function BillPage() {
                           <Eye size={14} /> {messageTranslation.View}
                         </button>
 
-                        {!invoice.subBills && (
+                        {!bill.subBills && (
                           <>
                             {hasPermission(
                               PermissionConst.SALE_INVOICE_UPDATE
                             ) && (
                               <button
-                                onClick={() => showPromoteForm(invoice)}
+                                onClick={() => showPromoteForm(bill)}
                                 className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition"
                               >
                                 <Edit size={14} />
@@ -302,7 +285,7 @@ export default function BillPage() {
                         {hasPermission(PermissionConst.SALE_INVOICE_UPDATE) && (
                           <button
                             onClick={() => {
-                              setSelectedId(invoice.id);
+                              setSelectedId(bill.id);
                               setMode(viewMode.Edit);
                             }}
                             className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition"

@@ -21,6 +21,9 @@ import EditSaleInvoiceForm from "@/components/form/Sale-invoice/EditSaleInvoiceF
 import ViewSaleInvoice from "@/components/form/Sale-invoice/ViewSaleInvoice";
 import { useAlert } from "@/app/hooks/useAlert";
 import Loader from "@/components/Loader";
+import ViewBill from "@/components/form/Bill/ViewBill";
+import EditBillForm from "@/components/form/Bill/EditBillForm";
+import CreateBillForm from "@/components/form/Bill/CreateBillForm";
 
 export default function InvoicePage() {
   const [mode, setMode] = useState<viewMode>(viewMode.List);
@@ -63,24 +66,24 @@ export default function InvoicePage() {
 
   if (mode === viewMode.Create)
     return (
-      <CreateSaleInvoiceForm
-        type={InvoiceType.INVOICE}
+      <CreateBillForm
+        type={BillType.RECEIPT_SERVICE}
         onCancel={handleBackToList}
       />
     );
   if (mode === viewMode.Edit && selectedId)
     return (
-      <EditSaleInvoiceForm
-        type={InvoiceType.INVOICE}
-        invoiceId={selectedId}
+      <EditBillForm
+        type={BillType.RECEIPT_SERVICE}
+        billId={selectedId}
         onCancel={handleBackToList}
       />
     );
   if (mode === viewMode.View && selectedId)
     return (
-      <ViewSaleInvoice
-        invoiceId={selectedId}
-        textOnly={messageTranslation.Invoice}
+      <ViewBill
+        billId={selectedId}
+        textOnly={messageTranslation.ReceiptService}
         onClose={handleBackToList}
       />
     );
@@ -89,7 +92,7 @@ export default function InvoicePage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-800">
-          {messageTranslation.Invoice}
+          {messageTranslation.ReceiptService}
         </h1>
         {hasPermission(PermissionConst.SALE_INVOICE_CREATE) && (
           <button
@@ -99,7 +102,7 @@ export default function InvoicePage() {
             }}
           >
             <Plus size={18} />
-            {create(messageTranslation.Invoice)}
+            {create(messageTranslation.ReceiptService)}
           </button>
         )}
       </div>
@@ -107,7 +110,7 @@ export default function InvoicePage() {
       {/* Filter Card */}
       <div className="mb-6 bg-white border border-gray-200 rounded-xl shadow-sm p-5">
         <h2 className="text-lg font-semibold text-gray-700 mb-4">
-          {filter(messageTranslation.Invoice)}
+          {filter(messageTranslation.ReceiptService)}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <input
@@ -171,7 +174,7 @@ export default function InvoicePage() {
                     {messageTranslation.Company}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.Quotation}
+                    {messageTranslation.BillService}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.TotalAmount}
@@ -197,7 +200,7 @@ export default function InvoicePage() {
                       {invoice.stt}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-blue-600">
-                      {invoice.saleInvoiceNo}
+                      {invoice.invoiceNo}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-800">
                       {invoice.company?.name || "-"}

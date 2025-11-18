@@ -1,7 +1,8 @@
 // app/api/accounts/[id]/route.ts
 import { messageTranslation } from "@/lib/constant";
 import prisma from "@/lib/prisma";
-import { requireAccess } from "@/lib/requirePermission";
+import { requirePermission } from "@/lib/requirePermission";
+
 import { Permission, Role } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,10 +12,7 @@ export async function GET(
 ) {
   try {
     // Check access (ADMIN role and ACCOUNT_VIEW permission)
-    await requireAccess({
-      roles: [Role.ADMIN],
-      permissions: [Permission.USER_VIEW],
-    });
+    await requirePermission(Permission.USER_VIEW);
 
     // Parse and validate ID
     const { id } = await params;

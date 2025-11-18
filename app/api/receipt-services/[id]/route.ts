@@ -22,7 +22,7 @@ export async function GET(
     const saleInvoiceId = Number(id);
 
     // Fetch employee
-    const saleInvoice = await prisma.receiptService.findFirst({
+    const saleInvoice = await prisma.receiptService.findUnique({
       where: {
         id: saleInvoiceId,
       },
@@ -36,6 +36,7 @@ export async function GET(
             id: true,
             saleInvoiceNo: true,
             totalAmount: true,
+            createdAt: true,
           },
         },
       },

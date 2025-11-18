@@ -7,7 +7,6 @@ import { requirePermission } from "@/lib/requirePermission";
 import { BillType, InvoiceType, PaidType, Permission } from "@prisma/client";
 
 interface ReceiptServiceData {
-  invoiceNo: string;
   type: BillType;
   companyId: number;
   items: Array<{
@@ -20,11 +19,11 @@ export async function createReceiptService(data: ReceiptServiceData) {
   return handleAction(
     async () => {
       const session = await requirePermission(Permission.SALE_INVOICE_CREATE);
-      const { invoiceNo, items, type, companyId } = data;
+      const { items, type, companyId } = data;
       const createdBy = session.user.id;
 
       // Validate data
-      if (!invoiceNo || !items?.length || !companyId) {
+      if (!items?.length || !companyId) {
         throw new Error(messageTranslation.AllFiledRequired);
       }
 
@@ -42,6 +41,19 @@ export async function createReceiptService(data: ReceiptServiceData) {
       // Use transaction to ensure atomicity
       const result = await prisma.$transaction(async (tx) => {
         // 1. Create receipt service
+        const dateStr = date.toISOString().split("T")[0].replace(/-/g, ""); // Format: YYYYMMDD
+        const prefix = type === BillType.BILL_SERVICE ? "BL" : "RC";
+        const todayCount = await tx.receiptService.count({
+          where: {
+            type: type,
+            createdAt: {
+              gte: date,
+              lt: new Date(date.getTime() + 24 * 60 * 60 * 1000), // Next day
+            },
+          },
+        });
+
+        const invoiceNo = `${prefix}${dateStr}-${todayCount + 1}`;
         const bill = await tx.receiptService.create({
           data: {
             companyId: companyId,
@@ -53,6 +65,7 @@ export async function createReceiptService(data: ReceiptServiceData) {
             type: type,
             vat: 0, // Add default value or pass from data
           },
+          select: { id: true },
         });
 
         // 2. Update all sale invoices with the new billId
@@ -67,11 +80,7 @@ export async function createReceiptService(data: ReceiptServiceData) {
           },
         });
 
-        return {
-          ...bill,
-          totalAmount: bill.totalAmount.toNumber(),
-          vat: bill.vat.toNumber(),
-        };
+        return bill;
       });
 
       return result;
@@ -83,39 +92,64 @@ export async function createReceiptService(data: ReceiptServiceData) {
   );
 }
 
-export async function promoteBillToReceiptService(
-  id: number,
-  invoiceNo: string
-) {
+export async function promoteBillToReceiptService(id: number) {
   return handleAction(
     async () => {
       const session = await requirePermission(Permission.SALE_INVOICE_UPDATE);
       const promotedBy = session.user.id;
-      const bill = await prisma.receiptService.findUnique({
-        where: { id: Number(id) },
-      });
-      if (!bill) throw new Error(messageTranslation.NotFound);
-      if (bill.type !== BillType.BILL_SERVICE)
-        throw new Error(messageTranslation.Unknown);
-      const newInvoice = await prisma.receiptService.create({
-        data: {
-          companyId: bill.companyId,
-          invoiceNo: invoiceNo,
-          year: bill.year,
-          month: bill.month,
-          totalAmount: bill.totalAmount,
-          billId: bill.id,
-          type: BillType.RECEIPT_SERVICE, //
-          vat: bill.vat ?? 0,
-          createdById: promotedBy,
-        },
+
+      const date = new Date();
+      date.setUTCHours(0, 0, 0, 0); // Set to start of day for consistency
+
+      // Use transaction to ensure atomicity
+      const result = await prisma.$transaction(async (tx) => {
+        // 1. Verify bill exists and is valid
+        const bill = await tx.receiptService.findUnique({
+          where: { id: Number(id) },
+        });
+
+        if (!bill) throw new Error(messageTranslation.NotFound);
+        if (bill.type !== BillType.BILL_SERVICE)
+          throw new Error(messageTranslation.Unknown);
+
+        // 2. Generate invoice number
+        const dateStr = date.toISOString().split("T")[0].replace(/-/g, "");
+        const prefix = "RC";
+
+        const todayCount = await tx.receiptService.count({
+          where: {
+            type: BillType.RECEIPT_SERVICE,
+            createdAt: {
+              gte: date,
+              lt: new Date(date.getTime() + 24 * 60 * 60 * 1000),
+            },
+          },
+        });
+
+        const invoiceNo = `${prefix}${dateStr}-${todayCount + 1}`;
+
+        // 3. Create new receipt
+        const newReceipt = await tx.receiptService.create({
+          data: {
+            companyId: bill.companyId,
+            invoiceNo: invoiceNo,
+            year: bill.year,
+            month: bill.month,
+            totalAmount: bill.totalAmount,
+            billId: bill.id,
+            type: BillType.RECEIPT_SERVICE,
+            vat: bill.vat ?? 0,
+            createdById: promotedBy,
+          },
+          select: { id: true },
+        });
+
+        // 4. Copy service items from bill to receipt
+
+        return newReceipt;
       });
 
-      return {
-        ...newInvoice,
-        totalAmount: newInvoice.totalAmount.toNumber(),
-        vat: newInvoice.vat ? newInvoice.vat.toNumber() : 0,
-      };
+      return result;
     },
     {
       successKey: messageTranslation.UpdatedSuccess,
@@ -238,16 +272,13 @@ export async function updateReceiptService(
         // Fetch and return the updated receipt
         const updatedReceipt = await tx.receiptService.findUnique({
           where: { id: currentReceipt.id },
-          include: {
-            saleInvoices: true,
+          select: {
+            id: true,
           },
         });
+        if (!updatedReceipt) throw new Error(messageTranslation.NotFound);
 
-        return {
-          ...updatedReceipt,
-          totalAmount: updatedReceipt!.totalAmount.toNumber(),
-          vat: updatedReceipt!.vat.toNumber(),
-        };
+        return updatedReceipt;
       });
 
       return result;

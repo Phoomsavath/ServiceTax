@@ -11,9 +11,9 @@ import {
   PaidStatusTranslation,
   searchBy,
 } from "@/lib/constant";
-import { BillType, InvoiceType, PaidType } from "@prisma/client";
-import { createSaleInvoice } from "@/action/saleInvoice";
+import { BillType, InvoiceType } from "@prisma/client";
 import { createReceiptService } from "@/action/bills";
+import Loader from "@/components/Loader";
 
 interface CreateInvoiceFormProps {
   onCancel: () => void;
@@ -40,18 +40,28 @@ export default function CreateBillForm({
   const [selectedCompany, setSelectedCompany] = useState<any>("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const api = createApiWithAlert();
-  const [invoiceNo, setInvoiceNo] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [companies, setCompanies] = useState<any[]>([]);
   // 2️⃣ Load products whenever warehouse, category, or searchTerm change
+
+  // 2️⃣ Load products whenever warehouse, category, or searchTerm change
   useEffect(() => {
     loadInvoices();
+  }, [searchTerm, selectedCompany]);
+  useEffect(() => {
     loadCompanies();
-  }, [searchTerm]);
+  }, []);
+  // Reset cart when company changes
+  useEffect(() => {
+    if (selectedCompany) {
+      setCart([]);
+    }
+  }, [selectedCompany]);
   const loadCompanies = async () => {
     const { data: companies } = await api.get("/companies");
     const categoriesRes = companies?.data || [];
     setCompanies(categoriesRes);
+    setSelectedCompany(categoriesRes[0].id);
   };
 
   const loadInvoices = async () => {
@@ -64,7 +74,7 @@ export default function CreateBillForm({
       const { data } = await api.get(
         `/sale-invoices?type=${
           InvoiceType.INVOICE
-        }&billId=${"unlinked"}&${params.toString()}`
+        }&billId=${"unlinked"}&companyId=${selectedCompany}&${params.toString()}`
       );
 
       setInvoices(data.success ? data.data : []);
@@ -106,13 +116,7 @@ export default function CreateBillForm({
       return;
     }
 
-    if (!invoiceNo.trim()) {
-      showWarning("ກະລຸນາໃສ່ເລກທີໃບບິນ");
-      return;
-    }
-
     const billData = {
-      invoiceNo: invoiceNo.trim(),
       companyId: parseInt(selectedCompany),
       type: type,
       items: cart.map((item) => ({
@@ -180,31 +184,37 @@ export default function CreateBillForm({
 
         {/* Products Grid */}
         <div className="flex-1 overflow-y-auto p-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {invoices.map((invoice) => (
-              <div
-                key={invoice.id}
-                onClick={() => addToCart(invoice)}
-                className="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 cursor-pointer transition hover:shadow-md hover:border-blue-500"
-              >
-                <div className="flex flex-col h-full">
-                  <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">
-                    {messageTranslation.Invoice}: {invoice.saleInvoiceNo}
-                  </h3>
+          {invoices.length === 0 ? (
+            <div className="text-center py-10 text-gray-500">
+              {messageTranslation.NoData}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {invoices.map((invoice) => (
+                <div
+                  key={invoice.id}
+                  onClick={() => addToCart(invoice)}
+                  className="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4 cursor-pointer transition hover:shadow-md hover:border-blue-500"
+                >
+                  <div className="flex flex-col h-full">
+                    <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">
+                      {messageTranslation.Invoice}: {invoice.saleInvoiceNo}
+                    </h3>
 
-                  <div className="mt-auto">
-                    <p className="text-sm text-gray-600 mb-1">
-                      {messageTranslation.Price}:
-                      {formatCurrency(invoice.totalAmount)}
-                    </p>
-                    <div className="flex items-center justify-end">
-                      <Plus size={16} className="text-blue-600" />
+                    <div className="mt-auto">
+                      <p className="text-sm text-gray-600 mb-1">
+                        {messageTranslation.Price}:
+                        {formatCurrency(invoice.totalAmount)}
+                      </p>
+                      <div className="flex items-center justify-end">
+                        <Plus size={16} className="text-blue-600" />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -227,23 +237,6 @@ export default function CreateBillForm({
                 {messageTranslation.Delete}
               </button>
             )}
-          </div>
-
-          {/* Invoice Number */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {type === BillType.BILL_SERVICE
-                ? messageTranslation.BillServiceNo
-                : messageTranslation.ReceiptServiceNo}
-              *
-            </label>
-            <input
-              type="text"
-              value={invoiceNo}
-              onChange={(e) => setInvoiceNo(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-              placeholder="PO-202410-0001"
-            />
           </div>
           {/* deliveryPoint Selection */}
           <div>

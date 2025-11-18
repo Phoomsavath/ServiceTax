@@ -40,6 +40,7 @@ export async function GET(
             },
           },
         },
+        createdAt: true,
         company: { select: { name: true, address: true, phone: true } },
       },
     });

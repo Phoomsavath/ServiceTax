@@ -4,7 +4,11 @@ import React, { use, useActionState, useEffect, useState } from "react";
 import { Permission, Role } from "@prisma/client";
 import { createApiWithAlert } from "@/lib/apiWithAlert";
 import { useRouter } from "next/navigation";
-import { initialState, messageTranslation } from "@/lib/constant";
+import {
+  initialState,
+  messageTranslation,
+  PermissionConst,
+} from "@/lib/constant";
 import { updateUser } from "@/action/users";
 import { useAlert } from "@/app/hooks/useAlert";
 import { withPermission } from "@/components/withPermission";
@@ -56,7 +60,7 @@ function EditAccountPage({ params }: any) {
   }, [id, router]);
 
   useEffect(() => {
-    if (state?.message) {
+    if (state.message) {
       if (state.success) {
         showSuccess(state.message);
         router.back();
@@ -64,7 +68,7 @@ function EditAccountPage({ params }: any) {
         showError(state.message);
       }
     }
-  }, [state, router]);
+  }, [state]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -397,4 +401,4 @@ function EditAccountPage({ params }: any) {
     </div>
   );
 }
-export default withPermission(EditAccountPage, Permission.USER_UPDATE);
+export default withPermission(EditAccountPage, PermissionConst.USER_UPDATE);

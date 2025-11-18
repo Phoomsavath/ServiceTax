@@ -171,11 +171,12 @@ export default function InvoicePage() {
                     {messageTranslation.InvoiceNo}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.Company}
+                    {messageTranslation.QuotationNo}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.Quotation}
+                    {messageTranslation.Company}
                   </th>
+
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.TotalAmount}
                   </th>
@@ -203,11 +204,12 @@ export default function InvoicePage() {
                       {invoice.saleInvoiceNo}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-800">
-                      {invoice.company?.name || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-800">
                       {invoice.quotation?.saleInvoiceNo || "-"}
                     </td>
+                    <td className="px-6 py-4 text-sm text-gray-800">
+                      {invoice.company?.name || "-"}
+                    </td>
+
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {formatDate(invoice.createdAt)}
                     </td>

@@ -88,8 +88,9 @@ export async function updateActiveService(id: number, status: ActiveState) {
       const update = await prisma.service.update({
         where: { id: Number(id) },
         data: { activeStatus: status },
+        select: { id: true },
       });
-      console.log(update);
+      return update;
     },
     {
       successKey: messageTranslation.UpdatedSuccess,

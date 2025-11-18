@@ -12,6 +12,7 @@ import { formatDate } from "@/lib/formateTime";
 import { createApiWithAlert } from "@/lib/apiWithAlert";
 import { useRouter } from "next/navigation";
 import { messageTranslation } from "@/lib/constant";
+import Loader from "@/components/Loader";
 
 interface ViewInvoiceFormProps {
   billId: number;
@@ -19,7 +20,7 @@ interface ViewInvoiceFormProps {
   onSuccess?: () => void;
   textOnly: string;
 }
-export default function ViewSaleInvoice({
+export default function ViewBill({
   billId,
   onClose,
   onSuccess,
@@ -29,10 +30,6 @@ export default function ViewSaleInvoice({
   const api = createApiWithAlert();
   const [receiptService, setReceiptService] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { showSuccess, showError } = useAlert();
-  const { hasPermission } = useAuth();
-  const router = useRouter();
-
   const contentRef = useRef<HTMLDivElement>(null);
   const [isPrinting, setIsPrinting] = useState(false);
   const reactToPrintFn = useReactToPrint({
@@ -61,7 +58,7 @@ export default function ViewSaleInvoice({
       );
 
       const receiptServiceData = receiptServiceResponse.data;
-
+      console.log(receiptServiceData);
       // 2. Fetch stock data if warehouse exists
 
       // 3. Update state
@@ -74,14 +71,7 @@ export default function ViewSaleInvoice({
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading invoice...</p>
-        </div>
-      </div>
-    );
+    return <Loader />;
   }
 
   return (
@@ -158,60 +148,43 @@ export default function ViewSaleInvoice({
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.Stt}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.Service}
-                  </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.Cost}
+                    {messageTranslation.SaleInvoice}
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.Price}
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.Quantity}
-                  </th>
-
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.TotalAmount}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {messageTranslation.CreatedAt}
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {receiptService.saleInvoiceServices.map(
-                  (item: any, index: any) => {
-                    const subtotal = item.service.price * item.quantity;
-
-                    return (
-                      <tr key={item.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900">
-                          {index + 1}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="font-medium text-gray-900">
-                            {item.service.name}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
-                          {formatCurrency(item.service.cost)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
-                          {formatCurrency(item.service.price)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
-                          {item.quantity}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 font-medium">
-                          {formatCurrency(subtotal)}
-                        </td>
-                      </tr>
-                    );
-                  }
-                )}
+                {receiptService.saleInvoices.map((item: any, index: any) => {
+                  return (
+                    <tr key={item.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900">
+                        {index + 1}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="font-medium text-gray-900">
+                          {item.saleInvoiceNo}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 font-medium">
+                        {formatCurrency(item.totalAmount)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                        {formatDate(item.createdAt)}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
               <tfoot className="bg-gray-50">
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={3}
                     className="px-6 py-4 text-right font-semibold text-gray-700"
                   >
                     {messageTranslation.TotalAmount}:
@@ -259,21 +232,20 @@ export default function ViewSaleInvoice({
                 {/* Right section (Invoice title) */}
                 <div className="text-right">
                   <h1 className="text-xl font-semibold text-gray-700">
-                    {messageTranslation.SaleInvoice}
+                    {textOnly}
                   </h1>
-                  <h2 className="text-base text-gray-600">Sale Invoice</h2>
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-between items-start mb-4">
+            {/* <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-gray-600">
                   <span className="font-semibold">Issued By / ອອກໃຫ້ໂດຍ:</span>{" "}
                   {user?.fullName}
                 </p>
               </div>
-            </div>
+            </div> */}
 
             {/* Customer & Warehouse Info */}
             <div className="grid grid-cols-2 gap-6 mt-6 pt-4 border-t">
@@ -310,28 +282,23 @@ export default function ViewSaleInvoice({
               <table className="w-full">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                      ລຳດັບ / Stt
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {messageTranslation.Stt}
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
-                      ບໍລິການ / Service
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {messageTranslation.SaleInvoice}
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
-                      ລາຄາ / Price
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {messageTranslation.TotalAmount}
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
-                      ຈຳນວນ / Qty
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
-                      ລວມ /Total
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {messageTranslation.CreatedAt}
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {receiptService.saleInvoiceServices.map(
+                  {receiptService.saleInvoices.map(
                     (item: any, index: number) => {
-                      const subtotal = item.service.price * item.quantity;
-
                       return (
                         <tr key={item.id}>
                           <td className="px-4 py-3 text-left text-sm text-gray-900">
@@ -339,18 +306,14 @@ export default function ViewSaleInvoice({
                           </td>
                           <td className="px-4 py-3 text-right text-sm text-gray-900">
                             <div className="font-medium text-gray-900">
-                              {item.service.name}
+                              {item.saleInvoiceNo}
                             </div>
                           </td>
-
                           <td className="px-4 py-3 text-right text-sm text-gray-900">
-                            {formatCurrency(item.service.price)}
+                            {formatCurrency(item.totalAmount)}
                           </td>
                           <td className="px-4 py-3 text-right text-sm text-gray-900">
-                            {item.quantity}
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-900 font-medium">
-                            {formatCurrency(subtotal)}
+                            {formatDate(item.createdAt)}
                           </td>
                         </tr>
                       );
@@ -365,7 +328,7 @@ export default function ViewSaleInvoice({
               <tfoot className="bg-gray-50">
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={3}
                     className="px-4 py-4 text-right font-semibold text-gray-700 text-base"
                   >
                     ຍອດລວມທັງໝົດ / Total Amount:
@@ -382,19 +345,19 @@ export default function ViewSaleInvoice({
           <div className="bg-white rounded-lg shadow-md p-3">
             <div className="grid grid-cols-3 gap-8 mt-4">
               <div className="text-center">
-                <div className="border-t-2 border-gray-300 pt-2 mt-12">
+                <div className="border-b-2 border-gray-300 pb-2 mb-12">
                   <p className="font-medium">Customer Signature</p>
                   <p className="text-sm text-gray-600">ລາຍເຊັນລູກຄ້າ</p>
                 </div>
               </div>
               <div className="text-center">
-                <div className="border-t-2 border-gray-300 pt-2 mt-12">
+                <div className="border-b-2 border-gray-300 pb-2 mb-12">
                   <p className="font-medium">Staff Signature</p>
                   <p className="text-sm text-gray-600">ລາຍເຊັນພະນັກງານ</p>
                 </div>
               </div>
               <div className="text-center">
-                <div className="border-t-2 border-gray-300 pt-2 mt-12">
+                <div className="border-b-2 border-gray-300 pb-2 mb-12">
                   <p className="font-medium">Manager Signature</p>
                   <p className="text-sm text-gray-600">ລາຍເຊັນຜູ້ຈັດການ</p>
                 </div>

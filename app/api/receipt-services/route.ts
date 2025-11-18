@@ -43,8 +43,9 @@ export async function GET(request: NextRequest) {
 
           select: {
             id: true,
-            subBills: { select: { id: true, saleInvoices: true } },
-            bill: { select: { id: true, saleInvoices: true } },
+            subBills: { select: { id: true, invoiceNo: true } },
+            company: { select: { name: true } },
+            bill: { select: { id: true, invoiceNo: true } },
             invoiceNo: true,
             totalAmount: true,
             createdAt: true,

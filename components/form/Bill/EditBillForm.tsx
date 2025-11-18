@@ -137,7 +137,6 @@ export default function EditBillForm({
     };
 
     const result = await updateReceiptService(billId, updateData);
-    console.log(result);
     if (result?.success) {
       showSuccess(result.message);
       onSuccess?.();

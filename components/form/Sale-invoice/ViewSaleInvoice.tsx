@@ -5,13 +5,12 @@ import { Package, User, DollarSign } from "lucide-react";
 import { use, useEffect, useRef, useState } from "react";
 import { useAuth } from "@/app/hooks/useAuth";
 import { formatCurrency } from "@/lib/getCurrencySymbol";
-import { useAlert } from "@/app/hooks/useAlert";
 import { useReactToPrint } from "react-to-print";
 import { formatDate } from "@/lib/formateTime";
 
 import { createApiWithAlert } from "@/lib/apiWithAlert";
-import { useRouter } from "next/navigation";
 import { messageTranslation } from "@/lib/constant";
+import Loader from "@/components/Loader";
 
 interface ViewInvoiceFormProps {
   invoiceId: number;
@@ -29,10 +28,6 @@ export default function ViewSaleInvoice({
   const api = createApiWithAlert();
   const [invoice, setInvoice] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { showSuccess, showError } = useAlert();
-  const { hasPermission } = useAuth();
-  const router = useRouter();
-
   const contentRef = useRef<HTMLDivElement>(null);
   const [isPrinting, setIsPrinting] = useState(false);
   const reactToPrintFn = useReactToPrint({
@@ -74,14 +69,7 @@ export default function ViewSaleInvoice({
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading invoice...</p>
-        </div>
-      </div>
-    );
+    return <Loader />;
   }
 
   return (
@@ -109,7 +97,7 @@ export default function ViewSaleInvoice({
                 {isPrinting ? "ກຳລັງປີ້ນ..." : "ປີ້ນ"}
               </button>
               <p className="text-gray-600 mt-1">
-                {messageTranslation.InvoiceNo}: {invoice.invoiceNo}
+                {messageTranslation.InvoiceNo}: {invoice.saleInvoiceNo}
               </p>
             </div>
           </div>
@@ -257,9 +245,8 @@ export default function ViewSaleInvoice({
                 {/* Right section (Invoice title) */}
                 <div className="text-right">
                   <h1 className="text-xl font-semibold text-gray-700">
-                    {messageTranslation.SaleInvoice}
+                    {textOnly}
                   </h1>
-                  <h2 className="text-base text-gray-600">Sale Invoice</h2>
                 </div>
               </div>
             </div>
@@ -277,7 +264,7 @@ export default function ViewSaleInvoice({
             <div className="grid grid-cols-2 gap-6 mt-6 pt-4 border-t">
               <div>
                 <h3 className="font-semibold text-gray-700 mb-2">
-                  ລູກຄ້າ / Customer : {invoice.company.name}
+                  ລູກຄ້າ/Customer : {invoice.company.name}
                 </h3>
                 <p className="text-sm text-gray-600">
                   ສະຖານທີ່/Address: {invoice.company.address || ""}
@@ -380,19 +367,19 @@ export default function ViewSaleInvoice({
           <div className="bg-white rounded-lg shadow-md p-3">
             <div className="grid grid-cols-3 gap-8 mt-4">
               <div className="text-center">
-                <div className="border-t-2 border-gray-300 pt-2 mt-12">
+                <div className="border-b-2 border-gray-300 pb-2 mb-12">
                   <p className="font-medium">Customer Signature</p>
                   <p className="text-sm text-gray-600">ລາຍເຊັນລູກຄ້າ</p>
                 </div>
               </div>
               <div className="text-center">
-                <div className="border-t-2 border-gray-300 pt-2 mt-12">
+                <div className="border-b-2 border-gray-300 pb-2 mb-12">
                   <p className="font-medium">Staff Signature</p>
                   <p className="text-sm text-gray-600">ລາຍເຊັນພະນັກງານ</p>
                 </div>
               </div>
               <div className="text-center">
-                <div className="border-t-2 border-gray-300 pt-2 mt-12">
+                <div className="border-b-2 border-gray-300 pb-2 mb-12">
                   <p className="font-medium">Manager Signature</p>
                   <p className="text-sm text-gray-600">ລາຍເຊັນຜູ້ຈັດການ</p>
                 </div>

@@ -25,10 +25,15 @@ export async function GET(request: NextRequest) {
     const invoiceNo = searchParams.get("invoiceNo");
     const type = searchParams.get("type");
     const billId = searchParams.get("billId");
+    const companyId = searchParams.get("companyId")
+      ? parseInt(searchParams.get("companyId")!)
+      : undefined;
     // Build where clause
     const where: any = {};
+    if (companyId) where.companyId = companyId;
     if (type) where.type = type;
     if (invoiceNo) where.saleInvoiceNo = { contains: invoiceNo };
+
     if (billId) {
       if (billId === "unlinked") {
         where.billId = null;
@@ -96,6 +101,7 @@ export async function GET(request: NextRequest) {
         totalAmount: true,
       },
     });
+    console.log(data);
 
     const total = data.length;
 

@@ -42,7 +42,6 @@ export default function CreateSaleInvoiceForm({
   const [selectedCompany, setSelectedCompany] = useState<any>("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const api = createApiWithAlert();
-  const [invoiceNo, setInvoiceNo] = useState("");
   const [deliveryPoint, setDeliveryPoint] = useState("");
   const [selectedPaidStatus, setSelectedPaidStatus] = useState<PaidType>(
     PaidType.UNPAID
@@ -124,13 +123,7 @@ export default function CreateSaleInvoiceForm({
       return;
     }
 
-    if (!invoiceNo.trim()) {
-      showWarning("ກະລຸນາໃສ່ເລກທີໃບບິນ");
-      return;
-    }
-
     const saleData = {
-      invoiceNo: invoiceNo.trim(),
       deliveryPoint: deliveryPoint.trim(),
       companyId: parseInt(selectedCompany),
       status: selectedPaidStatus,
@@ -261,22 +254,6 @@ export default function CreateSaleInvoiceForm({
             )}
           </div>
 
-          {/* Invoice Number */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {type === InvoiceType.INVOICE
-                ? messageTranslation.InvoiceNo
-                : messageTranslation.QuotationNo}
-              *
-            </label>
-            <input
-              type="text"
-              value={invoiceNo}
-              onChange={(e) => setInvoiceNo(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-              placeholder="PO-202410-0001"
-            />
-          </div>
           {/* deliveryPoint Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -290,33 +267,36 @@ export default function CreateSaleInvoiceForm({
               placeholder="ສະຖານທີ່ສົ່ງສິນຄ້າ"
             />
           </div>
-          <div>
-            <label
-              htmlFor="role"
-              className="block text-sm font-medium text-gray-600"
-            >
-              {messageTranslation.PaidStatus}
-            </label>
-            <select
-              id="paidStatus"
-              name="paidStatus"
-              value={selectedPaidStatus}
-              onChange={(e) =>
-                setSelectedPaidStatus(e.target.value as PaidType)
-              }
-              className="w-full mt-2 p-3 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              required
-            >
-              <option value="" disabled>
-                -- {messageTranslation.PaidStatus} --
-              </option>
-              {Object.values(PaidType).map((p) => (
-                <option key={p} value={p}>
-                  {PaidStatusTranslation[p]}
+
+          {type === InvoiceType.INVOICE ? (
+            <div>
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-600"
+              >
+                {messageTranslation.PaidStatus}
+              </label>
+              <select
+                id="paidStatus"
+                name="paidStatus"
+                value={selectedPaidStatus}
+                onChange={(e) =>
+                  setSelectedPaidStatus(e.target.value as PaidType)
+                }
+                className="w-full mt-2 p-3 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              >
+                <option value="" disabled>
+                  -- {messageTranslation.PaidStatus} --
                 </option>
-              ))}
-            </select>
-          </div>
+                {Object.values(PaidType).map((p) => (
+                  <option key={p} value={p}>
+                    {PaidStatusTranslation[p]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
 
           {/* Supplier Selection */}
           <div>

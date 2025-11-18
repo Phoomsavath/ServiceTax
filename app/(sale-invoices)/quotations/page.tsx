@@ -86,18 +86,7 @@ export default function QuotationPage() {
               disabled
               value="${quotation?.saleInvoiceNo || ""}"
               style="margin-bottom: 15px; background-color: #f5f5f5; color: #888; cursor: not-allowed;"
-            >
-            <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
-              messageTranslation.InvoiceNo
-            }
-            </label>
-            <input 
-              id="swal-invoiceNo" 
-              class="swal2-input" 
-              placeholder="${messageTranslation.Placeholder}"
-              value=""
-              style="margin-bottom: 15px;"
-            >
+          >
             <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
               messageTranslation.PaidStatus
             }</label>
@@ -137,16 +126,11 @@ export default function QuotationPage() {
       cancelButtonText: messageTranslation.Cancel,
       width: "600px",
       preConfirm: () => {
-        const invoiceNo = (
-          document.getElementById("swal-invoiceNo") as HTMLInputElement
-        )?.value?.trim();
-
         const status = (
           document.getElementById("swal-paidStatus") as HTMLSelectElement
         )?.value;
 
         return {
-          invoiceNo,
           status,
         };
       },
@@ -158,7 +142,6 @@ export default function QuotationPage() {
 
       result = await promoteQuotationToInvoice(
         quotation.id,
-        formData.invoiceNo,
         formData.paidStatus
       );
 
@@ -275,11 +258,15 @@ export default function QuotationPage() {
                     {messageTranslation.Stt}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {messageTranslation.QuotationNo}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.InvoiceNo}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.Company}
                   </th>
+
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.CreatedAt}
                   </th>
@@ -292,7 +279,6 @@ export default function QuotationPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.UpdatedBy}
                   </th>
-
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
@@ -307,12 +293,17 @@ export default function QuotationPage() {
                     <td className="px-6 py-4 text-sm font-medium text-blue-600">
                       {invoice.saleInvoiceNo}
                     </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {invoice.subSaleInvoices?.saleInvoiceNo || "-"}
+                    </td>
                     <td className="px-6 py-4 text-sm text-gray-800">
                       {invoice.company?.name || "-"}
                     </td>
+
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {formatDate(invoice.createdAt)}
                     </td>
+
                     <td className="px-6 py-4 text-sm font-medium text-gray-800">
                       {formatCurrency(invoice.totalAmount)}
                     </td>
@@ -349,55 +340,66 @@ export default function QuotationPage() {
                             )}
                           </>
                         )}
-                        {hasPermission(PermissionConst.SALE_INVOICE_UPDATE) && (
-                          <button
-                            onClick={() => {
-                              setSelectedId(invoice.id);
-                              setMode(viewMode.Edit);
-                            }}
-                            className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition"
-                          >
-                            <Edit size={14} /> {messageTranslation.Edit}
-                          </button>
-                        )}
-                        {hasPermission(PermissionConst.SALE_INVOICE_DELETE) && (
-                          <button
-                            onClick={
-                              async () => {
-                                const text = `ທ່ານແນ່ໃຈບໍ່ວ່າຈະລົບ${messageTranslation.QuotationNo}: ${invoice.saleInvoiceNo} ນີ້`;
-                                const confirm = await showConfirm(text);
-                                if (confirm) {
-                                  let result;
-                                  showProcessing();
+                        {!invoice.subSaleInvoices && (
+                          <>
+                            {" "}
+                            {hasPermission(
+                              PermissionConst.SALE_INVOICE_UPDATE
+                            ) && (
+                              <button
+                                onClick={() => {
+                                  setSelectedId(invoice.id);
+                                  setMode(viewMode.Edit);
+                                }}
+                                className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition"
+                              >
+                                <Edit size={14} /> {messageTranslation.Edit}
+                              </button>
+                            )}
+                            {hasPermission(
+                              PermissionConst.SALE_INVOICE_DELETE
+                            ) && (
+                              <button
+                                onClick={
+                                  async () => {
+                                    const text = `ທ່ານແນ່ໃຈບໍ່ວ່າຈະລົບ${messageTranslation.QuotationNo}: ${invoice.saleInvoiceNo} ນີ້`;
+                                    const confirm = await showConfirm(text);
+                                    if (confirm) {
+                                      let result;
+                                      showProcessing();
 
-                                  result = await deleteSaleInvoice(invoice.id);
+                                      result = await deleteSaleInvoice(
+                                        invoice.id
+                                      );
 
-                                  if (result.success) {
-                                    showSuccess(result.message);
-                                    reloadData();
-                                  } else {
-                                    showError(result.message);
+                                      if (result.success) {
+                                        showSuccess(result.message);
+                                        reloadData();
+                                      } else {
+                                        showError(result.message);
+                                      }
+                                      closeProcessing;
+                                    }
                                   }
-                                  closeProcessing;
-                                }
-                              }
 
-                              // if (result) {
-                              //   const res = await deleteSaleInvoice(
-                              //     invoice.id,
-                              //     invoice.status
-                              //   );
-                              //   if (res.message) {
-                              //     showAlert(res.success, res.message);
-                              //     reloadData();
-                              //   }
-                              // }
-                            }
-                            className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-medium transition bg-red-100 text-red-700 hover:bg-red-200`}
-                          >
-                            <Trash size={14} />
-                            {messageTranslation.Delete}
-                          </button>
+                                  // if (result) {
+                                  //   const res = await deleteSaleInvoice(
+                                  //     invoice.id,
+                                  //     invoice.status
+                                  //   );
+                                  //   if (res.message) {
+                                  //     showAlert(res.success, res.message);
+                                  //     reloadData();
+                                  //   }
+                                  // }
+                                }
+                                className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-medium transition bg-red-100 text-red-700 hover:bg-red-200`}
+                              >
+                                <Trash size={14} />
+                                {messageTranslation.Delete}
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     </td>
