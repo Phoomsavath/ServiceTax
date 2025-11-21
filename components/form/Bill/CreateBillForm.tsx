@@ -61,7 +61,6 @@ export default function CreateBillForm({
     const { data: companies } = await api.get("/companies");
     const categoriesRes = companies?.data || [];
     setCompanies(categoriesRes);
-    setSelectedCompany(categoriesRes[0].id);
   };
 
   const loadInvoices = async () => {

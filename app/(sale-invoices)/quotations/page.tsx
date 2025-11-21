@@ -129,7 +129,6 @@ export default function QuotationPage() {
         const status = (
           document.getElementById("swal-paidStatus") as HTMLSelectElement
         )?.value;
-
         return {
           status,
         };
@@ -139,11 +138,7 @@ export default function QuotationPage() {
     if (formData) {
       let result;
       showProcessing();
-
-      result = await promoteQuotationToInvoice(
-        quotation.id,
-        formData.paidStatus
-      );
+      result = await promoteQuotationToInvoice(quotation.id, formData.status);
 
       closeProcessing();
 
@@ -267,6 +262,9 @@ export default function QuotationPage() {
                     {messageTranslation.InvoiceNo}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {messageTranslation.PaidStatus}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.Company}
                   </th>
 
@@ -298,6 +296,9 @@ export default function QuotationPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {invoice.subSaleInvoices?.saleInvoiceNo || "-"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800">
+                      {invoice.paidStatus || "-"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-800">
                       {invoice.company?.name || "-"}

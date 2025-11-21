@@ -11,7 +11,7 @@ import bcrypt from "bcryptjs";
 export async function createUser(prevState: any, data: FormData) {
   return handleAction(
     async () => {
-      await requirePermission(Permission.USER_CREATE);
+      const session = await requirePermission(Permission.USER_CREATE);
 
       const userName = data.get("userName")?.toString();
 
@@ -19,6 +19,8 @@ export async function createUser(prevState: any, data: FormData) {
       const password = data.get("password")?.toString();
       const role = data.get("role")?.toString();
       const permissionsString = data.get("permissions")?.toString();
+      if (session.user.role !== Role.ADMIN && Role.ADMIN === role)
+        throw new Error(messageTranslation.Forbidden);
 
       if (!userName || !password || !role)
         throw new Error(messageTranslation.AllFiledRequired);
@@ -54,7 +56,7 @@ export async function createUser(prevState: any, data: FormData) {
 export async function updateUser(prevState: any, data: FormData) {
   return handleAction(
     async () => {
-      await requirePermission(Permission.USER_UPDATE);
+      const session = await requirePermission(Permission.USER_UPDATE);
       const id = data.get("id");
       const userName = data.get("userName")?.toString();
       const fullName = data.get("fullName")?.toString();
@@ -64,6 +66,8 @@ export async function updateUser(prevState: any, data: FormData) {
         throw new Error(messageTranslation.AllFiledRequired);
 
       // Parse permissions
+      if (session.user.role !== Role.ADMIN && Role.ADMIN === role)
+        throw new Error(messageTranslation.Forbidden);
       let permissions: Permission[] = [];
       if (permissionsString) {
         try {

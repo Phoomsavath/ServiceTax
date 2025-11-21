@@ -112,7 +112,6 @@ export async function promoteQuotationToInvoice(id: number, status: PaidType) {
     async () => {
       const session = await requirePermission(Permission.SALE_INVOICE_UPDATE);
       const promotedBy = session.user.id;
-
       const date = new Date();
       date.setUTCHours(0, 0, 0, 0); // Set to start of day for consistency
 

@@ -21,7 +21,7 @@ export async function createService(data: serviceData) {
     async () => {
       const session = await requirePermission(Permission.SERVICE_CREATE);
       const { name, cost, category, descriptions, price, unit, sets } = data;
-      console.log(sets);
+
       if (!name || !cost || !category || !price || !unit)
         throw new Error(messageTranslation.AllFiledRequired);
 

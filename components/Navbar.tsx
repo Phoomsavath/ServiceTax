@@ -5,9 +5,40 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { BillType, InvoiceType, Role } from "@prisma/client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { messageTranslation } from "@/lib/constant";
+import Link from "next/link";
+
+// ---------- Anti Spam Link ----------
+function AntiSpamLink({
+  href,
+  children,
+  className,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const router = useRouter();
+  const [blocked, setBlocked] = useState(false);
+
+  const handleClick = (e: any) => {
+    e.preventDefault();
+    if (blocked) return;
+
+    setBlocked(true);
+    router.push(href);
+
+    setTimeout(() => setBlocked(false), 800); // prevent rapid clicks
+  };
+
+  return (
+    <a href={href} onClick={handleClick} className={className}>
+      {children}
+    </a>
+  );
+}
+// ---------- End Anti Spam Link ----------
 
 const COMMON_PUBLIC = [
   { title: messageTranslation.Home, href: "/" },
@@ -16,39 +47,27 @@ const COMMON_PUBLIC = [
 
 const ROLE_MENUS = {
   ADMIN: [
+    { title: messageTranslation.DashBoard, href: "/admin" },
     { title: messageTranslation.Account, href: "/accounts" },
     { title: messageTranslation.Company, href: "/companies" },
     {
       title: messageTranslation.SaleInvoice,
       children: [
-        {
-          title: messageTranslation.Invoice,
-          href: `/invoices`,
-        },
-        {
-          title: messageTranslation.Quotation,
-          href: `/quotations`,
-        },
+        { title: messageTranslation.Invoice, href: `/invoices` },
+        { title: messageTranslation.Quotation, href: `/quotations` },
       ],
     },
     {
       title: messageTranslation.Bill,
       children: [
-        {
-          title: messageTranslation.BillService,
-          href: `/bill-services`,
-        },
-        {
-          title: messageTranslation.ReceiptService,
-          href: `/receipt-services`,
-        },
+        { title: messageTranslation.BillService, href: `/bill-services` },
+        { title: messageTranslation.ReceiptService, href: `/receipt-services` },
       ],
     },
     { title: messageTranslation.Service, href: "/services" },
   ],
 };
 
-// Updated structure: single items or groups with children
 type MenuItem = {
   title: string;
   href?: string;
@@ -62,14 +81,8 @@ const PERMISSION_MENUS: Record<string, MenuItem[]> = {
     {
       title: messageTranslation.Bill,
       children: [
-        {
-          title: messageTranslation.BillService,
-          href: `/bill-services`,
-        },
-        {
-          title: messageTranslation.ReceiptService,
-          href: `/receipt-services`,
-        },
+        { title: messageTranslation.BillService, href: `/bill-services` },
+        { title: messageTranslation.ReceiptService, href: `/receipt-services` },
       ],
     },
   ],
@@ -77,21 +90,14 @@ const PERMISSION_MENUS: Record<string, MenuItem[]> = {
     {
       title: messageTranslation.SaleInvoice,
       children: [
-        {
-          title: messageTranslation.Invoice,
-          href: `/invoices`,
-        },
-        {
-          title: messageTranslation.Quotation,
-          href: `/quotations`,
-        },
+        { title: messageTranslation.Invoice, href: `/invoices` },
+        { title: messageTranslation.Quotation, href: `/quotations` },
       ],
     },
   ],
   SERVICE_VIEW: [{ title: messageTranslation.Service, href: "/services" }],
 };
 
-// Dropdown component
 function NavDropdown({ item, pathname }: { item: MenuItem; pathname: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -144,80 +150,60 @@ export default function Navbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
 
-  if (status === "loading") {
-    return null;
-  }
+  if (status === "loading") return null;
 
   const { user } = session || {};
   const userRole = user?.role as string;
   const userPermissions: string[] = (user?.permissions || []) as string[];
 
-  let menuItems: MenuItem[] = COMMON_PUBLIC.map((item) => ({ ...item }));
+  let menuItems: MenuItem[] = [...COMMON_PUBLIC];
 
   if (userRole === Role.ADMIN) {
-    menuItems = ROLE_MENUS.ADMIN.map((item) => ({ ...item }));
+    menuItems = [...ROLE_MENUS.ADMIN];
   } else if (userPermissions.length > 0) {
     menuItems = userPermissions
       .flatMap((p) => PERMISSION_MENUS[p] || [])
-      .filter((item): item is MenuItem => Boolean(item));
+      .filter(Boolean);
   }
 
-  // Add "Dashboard" and "Home" for all logged-in users
   if (user) {
-    const baseMenus: MenuItem[] = [
-      { title: messageTranslation.Home, href: "/" },
-      // { title: "dashboard", href: "/dashboard" },
-    ];
-
-    const existingHefts = new Set(
+    const baseMenus = [{ title: messageTranslation.Home, href: "/" }];
+    const existing = new Set(
       menuItems.flatMap((m) =>
         m.href ? [m.href] : m.children?.map((c) => c.href) || []
       )
     );
-
-    const filteredBase = baseMenus.filter((m) => !existingHefts.has(m.href!));
-    menuItems = [...filteredBase, ...menuItems];
+    menuItems = [
+      ...baseMenus.filter((m) => !existing.has(m.href!)),
+      ...menuItems,
+    ];
   }
 
   return (
-    <nav
-      suppressHydrationWarning
-      className="sticky top-0 z-50 bg-white shadow-sm border-b"
-    >
+    <nav className="sticky top-0 z-50 bg-white shadow-sm border-b">
       <div className="max-w mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 gap-2">
           <div className="flex items-center gap-8">
             <span className="text-xl font-bold text-gray-800">Test</span>
 
             <div className="hidden md:flex items-center">
-              {menuItems.map((item, index) => {
-                // If item has children, render dropdown
-                if (item.children) {
-                  return (
-                    <NavDropdown
-                      key={`${item.title}-${index}`}
-                      item={item}
-                      pathname={pathname}
-                    />
-                  );
-                }
-
-                // Otherwise render normal link
-                const isActive = pathname === item.href;
-                return (
+              {menuItems.map((item, index) =>
+                item.children ? (
+                  <NavDropdown key={index} item={item} pathname={pathname} />
+                ) : (
                   <Link
                     key={item.href}
                     href={item.href!}
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive
+                      pathname === item.href
                         ? "bg-gray-300 text-gray-900"
                         : "text-gray-600 hover:bg-gray-200 hover:text-gray-900"
                     }`}
                   >
                     {item.title}
                   </Link>
-                );
-              })}
+                )
+              )}
             </div>
           </div>
 

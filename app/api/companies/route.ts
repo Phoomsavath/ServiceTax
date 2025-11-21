@@ -64,6 +64,7 @@ export async function GET(request: NextRequest) {
     // Fetch all mode
     const data = await prisma.company.findMany({
       where: { ...where, activeStatus: ActiveState.ACTIVE },
+      select: { id: true, name: true, address: true },
     });
 
     const total = data.length;

@@ -50,6 +50,7 @@ export enum PermissionConst {
   SERVICE_DELETE = "SERVICE_DELETE",
 }
 export enum messageTranslation {
+  DashBoard = "ສັງລວມ",
   Details = "ລາຍລະອຽດ",
   Set = "ເຊັດ",
   AdminOnly = "ສະເພາະແອັດມີນ",
@@ -138,8 +139,8 @@ export enum messageTranslation {
   Success = "ສຳເລັດ",
   Processing = "ກຳລັງປະມວນຜົນ",
   Loading = "ກຳລັງໂຫຼດຂໍ້ມູນ",
-  Cost = "ຕົ້ນທືນ",
-  Price = "ລາຄາ",
+  Cost = "ລາຄາເຮົາຈ່າຍ",
+  Price = "ລາຄາເກັບນຳລູກຄ້າ",
   CostForCustomer = "ຕົ້ນທືນທີ່ຈ່າຍໃຫ້ເຈົ້າໜ້າທີ່",
   PriceForCustomer = "ລາຄາທີ່ເກັບນຳລູກຄ້າ",
   Create = "ສ້າງ",

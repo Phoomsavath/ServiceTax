@@ -279,7 +279,7 @@ export default function ServicesPage() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-8 max-w-8xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-800">
@@ -307,13 +307,6 @@ export default function ServicesPage() {
             placeholder={searchBy(messageTranslation.Name)}
             value={search.name}
             onChange={(e) => setSearchTerm({ ...search, name: e.target.value })}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
-          <input
-            type="text"
-            placeholder={searchBy(messageTranslation.Code)}
-            value={search.code}
-            onChange={(e) => setSearchTerm({ ...search, code: e.target.value })}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
         </div>

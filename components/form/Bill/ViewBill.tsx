@@ -58,7 +58,6 @@ export default function ViewBill({
       );
 
       const receiptServiceData = receiptServiceResponse.data;
-      console.log(receiptServiceData);
       // 2. Fetch stock data if warehouse exists
 
       // 3. Update state

@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
       : undefined;
 
     const invoiceNo = searchParams.get("invoiceNo");
+    const paidStatus = searchParams.get("paidStatus");
     const type = searchParams.get("type");
     const billId = searchParams.get("billId");
     const companyId = searchParams.get("companyId")
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
     if (companyId) where.companyId = companyId;
     if (type) where.type = type;
     if (invoiceNo) where.saleInvoiceNo = { contains: invoiceNo };
-
+    if (paidStatus) where.paidStatus = paidStatus;
     if (billId) {
       if (billId === "unlinked") {
         where.billId = null;
@@ -102,7 +103,6 @@ export async function GET(request: NextRequest) {
         totalAmount: true,
       },
     });
-    console.log(data);
 
     const total = data.length;
 

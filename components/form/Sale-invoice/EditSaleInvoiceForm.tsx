@@ -6,9 +6,13 @@ import { Search, ShoppingCart, Plus, Minus, X, Package } from "lucide-react";
 import { formatCurrency } from "@/lib/getCurrencySymbol";
 import { createApiWithAlert } from "@/lib/apiWithAlert";
 import { useAlert } from "@/app/hooks/useAlert";
-import { edit, messageTranslation } from "@/lib/constant";
+import {
+  edit,
+  messageTranslation,
+  PaidStatusTranslation,
+} from "@/lib/constant";
 import Loader from "@/components/Loader";
-import { InvoiceType } from "@prisma/client";
+import { InvoiceType, PaidType } from "@prisma/client";
 import { updateSaleInvoice } from "@/action/saleInvoice";
 interface EditInvoiceFormProps {
   invoiceId: number;
@@ -45,7 +49,9 @@ export default function EditSaleInvoiceForm({
   const [services, setServices] = useState<any[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [selectedPaidStatus, setSelectedPaidStatus] = useState<PaidType>(
+    PaidType.UNPAID
+  );
   const [company, setCompany] = useState<string>("");
   const [invoiceNo, setInvoiceNo] = useState("");
 
@@ -295,6 +301,30 @@ export default function EditSaleInvoiceForm({
           </div>
 
           {/* Paid Amount - Read Only */}
+          {type === InvoiceType.INVOICE && (
+            <div>
+              <label className="block text-sm font-medium text-gray-600">
+                {messageTranslation.PaidStatus}
+              </label>
+              <select
+                value={selectedPaidStatus}
+                onChange={(e) =>
+                  setSelectedPaidStatus(e.target.value as PaidType)
+                }
+                className="w-full mt-2 p-3 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              >
+                <option value="" disabled>
+                  -- {messageTranslation.PaidStatus} --
+                </option>
+                {Object.values(PaidType).map((p) => (
+                  <option key={p} value={p}>
+                    {PaidStatusTranslation[p]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         {/* Cart Items */}

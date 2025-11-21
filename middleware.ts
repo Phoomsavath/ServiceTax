@@ -50,8 +50,10 @@ const ROUTES: Record<string, RouteConfig> = {
   "/accounts": { permissions: [Permission.USER_VIEW] },
   "/companies": { permissions: [Permission.COMPANY_VIEW] },
   "/services": { permissions: [Permission.SERVICE_VIEW] },
-  "/sale-invoices": { permissions: [Permission.SALE_INVOICE_VIEW] },
-  "/bills": { permissions: [Permission.BILL_VIEW] },
+  "/invoices": { permissions: [Permission.SALE_INVOICE_VIEW] },
+  "/quotations": { permissions: [Permission.SALE_INVOICE_VIEW] },
+  "/bill-services": { permissions: [Permission.BILL_VIEW] },
+  "/receipt-services": { permissions: [Permission.BILL_VIEW] },
 };
 
 // --------------------------------------------------

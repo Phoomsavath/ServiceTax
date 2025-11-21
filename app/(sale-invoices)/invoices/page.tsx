@@ -11,27 +11,25 @@ import {
   create,
   filter,
   messageTranslation,
+  PaidStatusTranslation,
   PermissionConst,
   searchBy,
   viewMode,
 } from "@/lib/constant";
-import { InvoiceType } from "@prisma/client";
+import { InvoiceType, PaidType } from "@prisma/client";
 import CreateSaleInvoiceForm from "@/components/form/Sale-invoice/CreateSaleInvoiceForm";
 import EditSaleInvoiceForm from "@/components/form/Sale-invoice/EditSaleInvoiceForm";
 import ViewSaleInvoice from "@/components/form/Sale-invoice/ViewSaleInvoice";
-import { useAlert } from "@/app/hooks/useAlert";
 import Loader from "@/components/Loader";
-import { useSearchParams } from "next/navigation";
 
 export default function InvoicePage() {
   const [mode, setMode] = useState<viewMode>(viewMode.List);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const { hasPermission } = useAuth();
-  const { showConfirm } = useAlert();
 
   const [search, setSearch] = useState({
     invoiceNo: "",
-    // customerName: "",
+    paidStatus: "",
   });
   const {
     items: invoices,
@@ -46,14 +44,13 @@ export default function InvoicePage() {
   const handleApplyFilters = () => {
     applyFilters({
       invoiceNo: search.invoiceNo,
-      // customerName: search.customerName,
+      paidStatus: search.paidStatus,
     });
   };
-
   const handleClearFilters = () => {
     setSearch({
       invoiceNo: "",
-      //    customerName: "",
+      paidStatus: "",
     });
     clearFilters();
   };
@@ -122,15 +119,20 @@ export default function InvoicePage() {
             }
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
-          {/* <input
-            type="text"
-            placeholder={t("searchBy", { name: t("supplier") })}
-            value={search.customerName}
+          <select
+            value={search.paidStatus}
             onChange={(e) =>
-              setSearch({ ...search, customerName: e.target.value })
+              setSearch({ ...search, paidStatus: e.target.value })
             }
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          /> */}
+            className="w-full px-4 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="">-- {messageTranslation.PaidStatus} --</option>
+            {Object.values(PaidType).map((p) => (
+              <option key={p} value={p}>
+                {PaidStatusTranslation[p]}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex justify-end mt-4 gap-2">
@@ -168,7 +170,7 @@ export default function InvoicePage() {
                     {messageTranslation.Stt}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.CreatedBy}
+                    {messageTranslation.CreatedAt}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.InvoiceNo}
@@ -177,16 +179,20 @@ export default function InvoicePage() {
                     {messageTranslation.QuotationNo}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.Company}
+                    {messageTranslation.PaidStatus}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.CreatedAt}
+                    {messageTranslation.Company}
                   </th>
+
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.UpdatedAt}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.TotalAmount}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {messageTranslation.CreatedBy}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.UpdatedBy}
@@ -211,6 +217,16 @@ export default function InvoicePage() {
                     <td className="px-6 py-4 text-sm text-gray-800">
                       {invoice.quotation?.saleInvoiceNo || "-"}
                     </td>
+                    <td
+                      className={`px-6 py-4 text-sm ${
+                        invoice.paidStatus === "PAID"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {PaidStatusTranslation[invoice.paidStatus as PaidType]}
+                    </td>
+
                     <td className="px-6 py-4 text-sm text-gray-800">
                       {invoice.company?.name || "-"}
                     </td>

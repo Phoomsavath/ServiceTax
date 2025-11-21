@@ -55,6 +55,13 @@ export default function CreateSaleInvoiceForm({
   const [selectedSet, setSelectedSet] = useState<string>(""); // New state for selected set
 
   useEffect(() => {
+    const company = companies.find((c) => c.id === Number(selectedCompany));
+    if (company) {
+      setDeliveryPoint(company.address);
+    }
+  }, [selectedCompany]);
+
+  useEffect(() => {
     loadServices();
     loadCompanies();
   }, [selectedSet]); // Add selectedSet to dependencies
@@ -73,8 +80,8 @@ export default function CreateSaleInvoiceForm({
 
   const loadCompanies = async () => {
     const { data: companies } = await api.get("/companies");
-    const categoriesRes = companies?.data || [];
-    setCompanies(categoriesRes);
+    const companiesRes = companies?.data || [];
+    setCompanies(companiesRes);
   };
 
   // Get unique sets from all services
@@ -392,7 +399,9 @@ export default function CreateSaleInvoiceForm({
               onChange={(e) => setSelectedCompany(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
             >
-              <option value="">-- {messageTranslation.Company} --</option>
+              <option value="" disabled>
+                -- {messageTranslation.Company} --
+              </option>
               {companies.map((company) => (
                 <option key={company.id} value={company.id}>
                   {company.name}
