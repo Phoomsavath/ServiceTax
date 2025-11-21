@@ -17,6 +17,7 @@ interface SaleInvoiceData {
     quantity: number;
     price: number;
     cost: number;
+    details?: string;
   }>;
 }
 
@@ -89,6 +90,7 @@ export async function createSaleInvoice(data: SaleInvoiceData) {
             quantity: item.quantity,
             price: item.price,
             cost: item.cost,
+            details: item.details,
             vat: 0,
           })),
         });
@@ -178,6 +180,7 @@ interface UpdateSaleInvoiceData {
     quantity: number;
     price: number;
     cost: number;
+    details?: string;
   }>;
 }
 
@@ -190,7 +193,7 @@ export async function updateSaleInvoice(
       const session = await requirePermission(Permission.SALE_INVOICE_UPDATE);
       const updatedBy = session.user.id;
       const { items } = data;
-
+      const date = new Date();
       // Validate data
       if (!items?.length) {
         throw new Error(messageTranslation.AllFiledRequired);
@@ -248,6 +251,7 @@ export async function updateSaleInvoice(
           data: {
             totalAmount: totalAmount,
             updatedById: updatedBy,
+            updatedAt: date,
           },
         });
 
@@ -259,6 +263,7 @@ export async function updateSaleInvoice(
             quantity: item.quantity,
             price: item.price,
             cost: item.cost,
+            details: item.details,
             vat: 0,
           }))
         );

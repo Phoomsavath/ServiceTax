@@ -1,6 +1,5 @@
 import { useAlert } from "@/app/hooks/useAlert";
 import axios from "axios";
-import Swal from "sweetalert2";
 
 let lastErrorTime = 0;
 
@@ -20,7 +19,7 @@ export function createApiWithAlert() {
       lastErrorTime = now;
 
       const status = error.response?.status;
-      const message = error.response?.data?.error;
+      const message = error.message;
 
       if (status === 404) showError(message);
       else if (status === 403) showWarning(message);

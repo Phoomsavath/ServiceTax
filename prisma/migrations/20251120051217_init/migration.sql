@@ -23,6 +23,7 @@ CREATE TABLE `Service` (
     `price` DECIMAL(10, 2) NOT NULL,
     `unit` ENUM('CARS', 'FILES', 'PAGES', 'PERSON') NOT NULL DEFAULT 'FILES',
     `category` ENUM('OFFICER_SERVICE', 'TAX_SERVICE', 'DELIVERY', 'WAREHOUSE_SERVICE', 'GOVERNMENT_SERVICE', 'GOVERNMENT_VAT') NOT NULL DEFAULT 'WAREHOUSE_SERVICE',
+    `sets` JSON NULL,
     `createdById` INTEGER NOT NULL,
     `updatedById` INTEGER NULL,
 
@@ -62,13 +63,14 @@ CREATE TABLE `SaleInvoice` (
     `billId` INTEGER NULL,
     `createdById` INTEGER NOT NULL,
     `updatedById` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
 
-    UNIQUE INDEX `SaleInvoice_saleInvoiceNo_key`(`saleInvoiceNo`),
     UNIQUE INDEX `SaleInvoice_quotationId_key`(`quotationId`),
     INDEX `SaleInvoice_type_idx`(`type`),
     INDEX `SaleInvoice_createdById_idx`(`createdById`),
     INDEX `SaleInvoice_saleInvoiceNo_idx`(`saleInvoiceNo`),
     INDEX `SaleInvoice_year_month_idx`(`year`, `month`),
+    UNIQUE INDEX `SaleInvoice_saleInvoiceNo_type_key`(`saleInvoiceNo`, `type`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -99,13 +101,14 @@ CREATE TABLE `ReceiptService` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `createdById` INTEGER NOT NULL,
     `updatedById` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
 
-    UNIQUE INDEX `ReceiptService_invoiceNo_key`(`invoiceNo`),
     UNIQUE INDEX `ReceiptService_billId_key`(`billId`),
     INDEX `ReceiptService_type_idx`(`type`),
     INDEX `ReceiptService_createdById_idx`(`createdById`),
     INDEX `ReceiptService_invoiceNo_idx`(`invoiceNo`),
     INDEX `ReceiptService_year_month_idx`(`year`, `month`),
+    UNIQUE INDEX `ReceiptService_invoiceNo_type_key`(`invoiceNo`, `type`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

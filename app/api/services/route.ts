@@ -38,7 +38,20 @@ export async function GET(request: NextRequest) {
           take: limit,
           where,
           orderBy: { id: "desc" },
+          select: {
+            id: true,
+            name: true,
+            sets: true,
+            unit: true,
+            category: true,
+            createdBy: { select: { fullName: true } },
+            updatedBy: { select: { fullName: true } },
+            activeStatus: true,
+            price: true,
+            cost: true,
+          },
         }),
+
         prisma.service.count({ where }),
       ]);
 
@@ -64,6 +77,14 @@ export async function GET(request: NextRequest) {
     // Fetch all mode
     const data = await prisma.service.findMany({
       where: { ...where, activeStatus: ActiveState.ACTIVE },
+      select: {
+        id: true,
+        name: true,
+        sets: true,
+        category: true,
+        price: true,
+        cost: true,
+      },
     });
 
     const total = data.length;

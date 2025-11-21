@@ -66,7 +66,7 @@ export async function updateCompany(id: number, data: CompanyData) {
 export async function updateActiveCompany(id: number, status: ActiveState) {
   return handleAction(
     async () => {
-      const session = await requirePermission(Permission.USER_DELETE);
+      const session = await requirePermission(Permission.COMPANY_DELETE);
       await prisma.company.update({
         where: { id: Number(id) },
         data: { activeStatus: status },

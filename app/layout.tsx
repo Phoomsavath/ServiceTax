@@ -25,7 +25,7 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
   return (
     <html lang="en">
-      <body className={notoSansLao.className}>
+      <body className={notoSansLao.className} suppressHydrationWarning>
         <SessionProvider session={session}>
           <Navbar />
           {children}

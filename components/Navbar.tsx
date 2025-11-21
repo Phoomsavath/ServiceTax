@@ -56,19 +56,19 @@ type MenuItem = {
 };
 
 const PERMISSION_MENUS: Record<string, MenuItem[]> = {
-  COMPANY_VIEW: [{ title: "companies", href: "/companies" }],
-  USER_VIEW: [{ title: "accounts", href: "/accounts" }],
+  COMPANY_VIEW: [{ title: messageTranslation.Company, href: "/companies" }],
+  USER_VIEW: [{ title: messageTranslation.Account, href: "/accounts" }],
   BILL_VIEW: [
     {
       title: messageTranslation.Bill,
       children: [
         {
           title: messageTranslation.BillService,
-          href: `/bills?type=${BillType.BILL_SERVICE}`,
+          href: `/bill-services`,
         },
         {
           title: messageTranslation.ReceiptService,
-          href: `/bills?type=${BillType.RECEIPT_SERVICE}`,
+          href: `/receipt-services`,
         },
       ],
     },
@@ -79,11 +79,11 @@ const PERMISSION_MENUS: Record<string, MenuItem[]> = {
       children: [
         {
           title: messageTranslation.Invoice,
-          href: `/sale-invoices?type=${InvoiceType.INVOICE}`,
+          href: `/invoices`,
         },
         {
           title: messageTranslation.Quotation,
-          href: `/sale-invoices?type=${InvoiceType.QUOTATION}`,
+          href: `/quotations`,
         },
       ],
     },

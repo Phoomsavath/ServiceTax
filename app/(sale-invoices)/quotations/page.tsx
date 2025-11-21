@@ -187,7 +187,7 @@ export default function QuotationPage() {
       />
     );
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-8 max-w-8xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-800">
@@ -258,6 +258,9 @@ export default function QuotationPage() {
                     {messageTranslation.Stt}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {messageTranslation.CreatedAt}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.QuotationNo}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -267,9 +270,6 @@ export default function QuotationPage() {
                     {messageTranslation.Company}
                   </th>
 
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.CreatedAt}
-                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.TotalAmount}
                   </th>
@@ -290,6 +290,9 @@ export default function QuotationPage() {
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {invoice.stt}
                     </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {formatDate(invoice.createdAt)}
+                    </td>
                     <td className="px-6 py-4 text-sm font-medium text-blue-600">
                       {invoice.saleInvoiceNo}
                     </td>
@@ -299,11 +302,6 @@ export default function QuotationPage() {
                     <td className="px-6 py-4 text-sm text-gray-800">
                       {invoice.company?.name || "-"}
                     </td>
-
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {formatDate(invoice.createdAt)}
-                    </td>
-
                     <td className="px-6 py-4 text-sm font-medium text-gray-800">
                       {formatCurrency(invoice.totalAmount)}
                     </td>
@@ -328,7 +326,7 @@ export default function QuotationPage() {
                         {!invoice.subSaleInvoices && (
                           <>
                             {hasPermission(
-                              PermissionConst.SALE_INVOICE_UPDATE
+                              PermissionConst.SALE_INVOICE_CREATE
                             ) && (
                               <button
                                 onClick={() => showPromoteForm(invoice)}

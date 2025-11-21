@@ -27,6 +27,7 @@ interface CartItem {
   cost: number;
   price: number;
   quantity: number;
+  details?: string;
 }
 
 export default function CreateSaleInvoiceForm({
@@ -34,10 +35,15 @@ export default function CreateSaleInvoiceForm({
   onSuccess,
   type,
 }: CreateInvoiceFormProps) {
-  const { showError, showSuccess, showWarning } = useAlert();
+  const {
+    showError,
+    showSuccess,
+    showWarning,
+    closeProcessing,
+    showProcessing,
+  } = useAlert();
   // States
   const [services, setServices] = useState<any[]>([]);
-
   const [companies, setCompanies] = useState<any[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<any>("");
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -46,20 +52,16 @@ export default function CreateSaleInvoiceForm({
   const [selectedPaidStatus, setSelectedPaidStatus] = useState<PaidType>(
     PaidType.UNPAID
   );
-  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSet, setSelectedSet] = useState<string>(""); // New state for selected set
 
-  // 2️⃣ Load products whenever warehouse, category, or searchTerm change
   useEffect(() => {
     loadServices();
     loadCompanies();
-  }, [searchTerm]);
+  }, [selectedSet]); // Add selectedSet to dependencies
 
   const loadServices = async () => {
     try {
       const params = new URLSearchParams();
-
-      // Add filters conditionally
-      if (searchTerm) params.append("productName", searchTerm);
 
       const { data } = await api.get(`/services?${params.toString()}`);
 
@@ -68,10 +70,22 @@ export default function CreateSaleInvoiceForm({
       setServices([]);
     }
   };
+
   const loadCompanies = async () => {
     const { data: companies } = await api.get("/companies");
     const categoriesRes = companies?.data || [];
     setCompanies(categoriesRes);
+  };
+
+  // Get unique sets from all services
+  const getAvailableSets = () => {
+    const setsSet = new Set<string>();
+    services.forEach((service) => {
+      if (Array.isArray(service.sets)) {
+        service.sets.forEach((set: string) => setsSet.add(set));
+      }
+    });
+    return Array.from(setsSet).sort();
   };
 
   const addToCart = (service: any) => {
@@ -89,9 +103,57 @@ export default function CreateSaleInvoiceForm({
         price: service.price || 0,
         cost: service.cost || 0,
         quantity: 1,
+        details: "",
       };
       setCart([...cart, newItem]);
     }
+  };
+
+  // Add all services from selected set to cart
+  const addSetToCart = () => {
+    if (!selectedSet) {
+      showWarning("Please select a set first");
+      return;
+    }
+
+    const servicesInSet = services.filter(
+      (service) =>
+        Array.isArray(service.sets) && service.sets.includes(selectedSet)
+    );
+
+    if (servicesInSet.length === 0) {
+      showWarning("No services found in this set");
+      return;
+    }
+
+    // Create new cart items for services not already in cart
+    const newItems: CartItem[] = [];
+    const updatedCart = [...cart];
+
+    servicesInSet.forEach((service, index) => {
+      const existingItemIndex = updatedCart.findIndex(
+        (item) => item.serviceId === service.id
+      );
+
+      if (existingItemIndex >= 0) {
+        // If item exists, increment quantity
+        updatedCart[existingItemIndex].quantity += 1;
+      } else {
+        // If item doesn't exist, create new item with unique ID
+        newItems.push({
+          id: Date.now() + index, // Add index to make IDs unique
+          serviceId: service.id,
+          name: service.name,
+          price: service.price || 0,
+          cost: service.cost || 0,
+          quantity: 1,
+          details: "",
+        });
+      }
+    });
+
+    // Combine updated cart with new items
+    setCart([...updatedCart, ...newItems]);
   };
 
   const updateQuantity = (serviceId: number, newQuantity: number) => {
@@ -117,12 +179,11 @@ export default function CreateSaleInvoiceForm({
   };
 
   const handleCheckout = async () => {
-    // Validation
     if (cart.length === 0) {
       showWarning("ກະລຸນາເພີ່ມສິນຄ້າລົງກະຕ່າ");
       return;
     }
-
+    showProcessing();
     const saleData = {
       deliveryPoint: deliveryPoint.trim(),
       companyId: parseInt(selectedCompany),
@@ -133,13 +194,13 @@ export default function CreateSaleInvoiceForm({
         quantity: item.quantity,
         price: item.price,
         cost: item.cost,
+        details: item.details,
       })),
     };
     const result = await createSaleInvoice(saleData);
-
+    closeProcessing();
     if (result?.success) {
       showSuccess(result?.message);
-      // Reset form
       clearCart();
       setSelectedCompany("");
       onSuccess?.();
@@ -148,6 +209,14 @@ export default function CreateSaleInvoiceForm({
       showError(result?.message);
     }
   };
+  const updateDetails = (id: number, details: string) => {
+    setCart(
+      cart.map((item) =>
+        item.id === id ? { ...item, details: details } : item
+      )
+    );
+  };
+
   const updatePrice = (id: number, newPrice: number) => {
     setCart(
       cart.map((item) => (item.id === id ? { ...item, price: newPrice } : item))
@@ -161,9 +230,11 @@ export default function CreateSaleInvoiceForm({
   };
 
   const totalAmount = calculateTotal();
+  const availableSets = getAvailableSets();
+
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Left Side - Products (9 columns) */}
+      {/* Left Side - Products */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header with Filters */}
         <div className="bg-white border-b p-4">
@@ -171,35 +242,49 @@ export default function CreateSaleInvoiceForm({
             onClick={onCancel}
             className="text-sm text-gray-600 hover:text-blue-600 mb-2 flex items-center gap-1"
           >
-            ←{messageTranslation.Back}
+            ← {messageTranslation.Back}
           </button>
           <h1 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
             <Package className="text-blue-600" />
-
             {create(
               type === InvoiceType.INVOICE
                 ? messageTranslation.Invoice
                 : messageTranslation.Quotation
             )}
           </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Search by Name */}
+
+            {/* Filter by Set */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {searchBy(messageTranslation.Name)}
+                {messageTranslation.Set}
               </label>
-              <div className="relative">
-                <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  size={20}
-                />
-                <input
-                  type="text"
-                  placeholder={searchBy(messageTranslation.Name)}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
+              <select
+                value={selectedSet}
+                onChange={(e) => setSelectedSet(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              >
+                <option value="">-- All Sets --</option>
+                {availableSets.map((set) => (
+                  <option key={set} value={set}>
+                    {set}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Add Set Button */}
+            <div className="flex items-end">
+              <button
+                onClick={addSetToCart}
+                disabled={!selectedSet}
+                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <Plus size={18} />
+                Add Entire Set to Cart
+              </button>
             </div>
           </div>
         </div>
@@ -215,12 +300,15 @@ export default function CreateSaleInvoiceForm({
               >
                 <div className="flex flex-col h-full">
                   <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">
-                    {messageTranslation.Service}: {service.name}
+                    {service.name}
                   </h3>
+
+                  {/* Display Sets */}
 
                   <div className="mt-auto">
                     <p className="text-sm text-gray-600 mb-1">
-                      {messageTranslation.Price}:{formatCurrency(service.price)}
+                      {messageTranslation.Price}:{" "}
+                      {formatCurrency(service.price)}
                     </p>
                     <div className="flex items-center justify-end">
                       <Plus size={16} className="text-blue-600" />
@@ -233,7 +321,7 @@ export default function CreateSaleInvoiceForm({
         </div>
       </div>
 
-      {/* Right Side - Cart (3 columns) */}
+      {/* Right Side - Cart */}
       <div className="w-full md:w-96 bg-white border-l flex flex-col">
         {/* Cart Header */}
         <div className="p-4 border-b space-y-3 max-h-[50vh] overflow-y-auto">
@@ -254,7 +342,7 @@ export default function CreateSaleInvoiceForm({
             )}
           </div>
 
-          {/* deliveryPoint Selection */}
+          {/* Delivery Point */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {messageTranslation.DeliveryPoint} *
@@ -268,17 +356,13 @@ export default function CreateSaleInvoiceForm({
             />
           </div>
 
-          {type === InvoiceType.INVOICE ? (
+          {/* Paid Status */}
+          {type === InvoiceType.INVOICE && (
             <div>
-              <label
-                htmlFor="role"
-                className="block text-sm font-medium text-gray-600"
-              >
+              <label className="block text-sm font-medium text-gray-600">
                 {messageTranslation.PaidStatus}
               </label>
               <select
-                id="paidStatus"
-                name="paidStatus"
                 value={selectedPaidStatus}
                 onChange={(e) =>
                   setSelectedPaidStatus(e.target.value as PaidType)
@@ -296,9 +380,9 @@ export default function CreateSaleInvoiceForm({
                 ))}
               </select>
             </div>
-          ) : null}
+          )}
 
-          {/* Supplier Selection */}
+          {/* Company Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {messageTranslation.Company} *
@@ -316,8 +400,6 @@ export default function CreateSaleInvoiceForm({
               ))}
             </select>
           </div>
-
-          {/* Paid Amount */}
         </div>
 
         {/* Cart Items */}
@@ -339,7 +421,6 @@ export default function CreateSaleInvoiceForm({
                       <h4 className="font-semibold text-gray-800 text-sm">
                         {item.name}
                       </h4>
-                      <p className="text-xs text-gray-500">{item.codeName}</p>
                     </div>
                     <button
                       onClick={() => removeFromCart(item.id)}
@@ -384,6 +465,22 @@ export default function CreateSaleInvoiceForm({
                       <Plus size={14} />
                     </button>
                   </div>
+                  {/* Details Input */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs text-gray-600 w-16">
+                      {messageTranslation.Details}:
+                    </span>
+                    <input
+                      type="text"
+                      value={item.details}
+                      onChange={(e) =>
+                        updateDetails(item.id, e.target.value || "")
+                      }
+                      className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Cost Input */}
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs text-gray-600 w-16">
                       {messageTranslation.Cost}:
@@ -395,10 +492,12 @@ export default function CreateSaleInvoiceForm({
                         updateCost(item.id, parseFloat(e.target.value) || 0)
                       }
                       className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                      min="1"
+                      min="0"
                       step="0.01"
                     />
                   </div>
+
+                  {/* Price Input */}
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs text-gray-600 w-16">
                       {messageTranslation.Price}:
@@ -410,12 +509,10 @@ export default function CreateSaleInvoiceForm({
                         updatePrice(item.id, parseFloat(e.target.value) || 0)
                       }
                       className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                      min="1"
+                      min="0"
                       step="0.01"
                     />
                   </div>
-
-                  {/* Cost Input */}
 
                   {/* Subtotal */}
                   <div className="flex justify-between items-center pt-2 border-t">
@@ -423,7 +520,7 @@ export default function CreateSaleInvoiceForm({
                       {messageTranslation.Total}
                     </span>
                     <span className="font-bold text-blue-600">
-                      {` ${formatCurrency(item.price * item.quantity)}`}
+                      {formatCurrency(item.price * item.quantity)}
                     </span>
                   </div>
                 </div>
@@ -438,7 +535,7 @@ export default function CreateSaleInvoiceForm({
             <div className="flex justify-between text-sm text-gray-600">
               <span>{messageTranslation.TotalAmount}:</span>
               <span className="font-semibold">
-                {` ${formatCurrency(totalAmount)}`}
+                {formatCurrency(totalAmount)}
               </span>
             </div>
           </div>

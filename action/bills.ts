@@ -184,6 +184,7 @@ export async function updateReceiptService(
         (sum, item) => sum + Number(item.totalAmount || 0),
         0
       );
+      const date = new Date();
 
       const result = await prisma.$transaction(async (tx) => {
         // Get current receipt with relationships
@@ -249,6 +250,7 @@ export async function updateReceiptService(
           data: {
             totalAmount: totalAmount,
             updatedById: updatedBy,
+            updatedAt: date,
           },
         });
 

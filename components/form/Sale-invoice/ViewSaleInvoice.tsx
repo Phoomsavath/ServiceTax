@@ -146,8 +146,11 @@ export default function ViewSaleInvoice({
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.Stt}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.Service}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {messageTranslation.Details}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.Cost}
@@ -158,7 +161,6 @@ export default function ViewSaleInvoice({
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.Quantity}
                   </th>
-
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.TotalAmount}
                   </th>
@@ -166,7 +168,7 @@ export default function ViewSaleInvoice({
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {invoice.saleInvoiceServices.map((item: any, index: any) => {
-                  const subtotal = item.service.price * item.quantity;
+                  const subtotal = item.price * item.quantity;
 
                   return (
                     <tr key={item.id}>
@@ -178,11 +180,20 @@ export default function ViewSaleInvoice({
                           {item.service.name}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
-                        {formatCurrency(item.service.cost)}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="font-medium text-gray-900 text-xs">
+                          {(item.details || "N/A")
+                            .split(",")
+                            .map((detail: string, index: number) => (
+                              <div key={index}>{detail}</div>
+                            ))}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
-                        {formatCurrency(item.service.price)}
+                        {formatCurrency(item.cost)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                        {formatCurrency(item.price)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
                         {item.quantity}
@@ -302,6 +313,9 @@ export default function ViewSaleInvoice({
                       ບໍລິການ / Service
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
+                      ລາຍລະອຽດ / Details
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
                       ລາຄາ / Price
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
@@ -315,7 +329,7 @@ export default function ViewSaleInvoice({
                 <tbody className="bg-white divide-y divide-gray-200">
                   {invoice.saleInvoiceServices.map(
                     (item: any, index: number) => {
-                      const subtotal = item.service.price * item.quantity;
+                      const subtotal = item.price * item.quantity;
 
                       return (
                         <tr key={item.id}>
@@ -327,9 +341,17 @@ export default function ViewSaleInvoice({
                               {item.service.name}
                             </div>
                           </td>
-
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="font-medium text-gray-900 text-xs">
+                              {(item.details || "N/A")
+                                .split(",")
+                                .map((detail: string, index: number) => (
+                                  <div key={index}>{detail}</div>
+                                ))}
+                            </div>
+                          </td>
                           <td className="px-4 py-3 text-right text-sm text-gray-900">
-                            {formatCurrency(item.service.price)}
+                            {formatCurrency(item.price)}
                           </td>
                           <td className="px-4 py-3 text-right text-sm text-gray-900">
                             {item.quantity}

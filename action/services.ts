@@ -6,6 +6,7 @@ import { requirePermission } from "@/lib/requirePermission";
 import { ActiveState, Category, Permission, Unit } from "@prisma/client";
 
 interface serviceData {
+  sets?: string[];
   name: string;
   cost: number;
   category: Category;
@@ -19,7 +20,8 @@ export async function createService(data: serviceData) {
   return handleAction(
     async () => {
       const session = await requirePermission(Permission.SERVICE_CREATE);
-      const { name, cost, category, descriptions, price, unit } = data;
+      const { name, cost, category, descriptions, price, unit, sets } = data;
+      console.log(sets);
       if (!name || !cost || !category || !price || !unit)
         throw new Error(messageTranslation.AllFiledRequired);
 
@@ -29,6 +31,7 @@ export async function createService(data: serviceData) {
           descriptions,
           category,
           cost,
+          sets,
           price,
           unit,
           createdById: Number(session.user.id),
@@ -52,8 +55,7 @@ export async function updateService(id: number, data: serviceData) {
     async () => {
       const session = await requirePermission(Permission.SERVICE_UPDATE);
 
-      const { name, cost, category, price, unit, descriptions } = data;
-
+      const { name, cost, category, price, unit, descriptions, sets } = data;
       if (!name || !cost || !category || !price || !unit)
         throw new Error(messageTranslation.AllFiledRequired);
 
@@ -61,6 +63,7 @@ export async function updateService(id: number, data: serviceData) {
         where: { id: Number(id) },
         data: {
           name,
+          sets,
           descriptions,
           category,
           cost,
@@ -84,7 +87,7 @@ export async function updateService(id: number, data: serviceData) {
 export async function updateActiveService(id: number, status: ActiveState) {
   return handleAction(
     async () => {
-      const session = await requirePermission(Permission.USER_DELETE);
+      const session = await requirePermission(Permission.SERVICE_DELETE);
       const update = await prisma.service.update({
         where: { id: Number(id) },
         data: { activeStatus: status },

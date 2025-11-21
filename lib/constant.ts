@@ -49,8 +49,9 @@ export enum PermissionConst {
   SERVICE_UPDATE = "SERVICE_UPDATE",
   SERVICE_DELETE = "SERVICE_DELETE",
 }
-
 export enum messageTranslation {
+  Details = "ລາຍລະອຽດ",
+  Set = "ເຊັດ",
   AdminOnly = "ສະເພາະແອັດມີນ",
   SettingStatus = "ຕັ້ງຄ່າການໃຊ້ງານ",
   SignIn = "ເຂົ້າສູ່ລະບົບ",
@@ -73,6 +74,7 @@ export enum messageTranslation {
   PromoteToInvoice = "ປ່ຽນເປັນໃບວາງບິນ",
   PromoteToReceipt = "ປ່ຽນເປັນໃບຮັບເງິນ",
   PaidStatus = "ສະຖານະການຈ່າຍເງິນ",
+  UpdatedAt = "ວັນທີແກ້ໄຂລ່າສຸດ",
 
   CreatedSuccess = "ການສ້າງສຳເລັດ",
   CreateFailed = "ການສ້າງຜິດພາດ",
@@ -101,12 +103,10 @@ export enum messageTranslation {
   ReceiptServiceNo = "ເລກທີໃບຮັບເງິນ",
   InvoiceNo = "ເລກທີໃບແຈ້ງໜີ້",
   QuotationNo = "ເລກທີໃບສະເໜີ",
-
   Stt = "ລຳດັບ",
   AllFiledRequired = "ກະລຸນາໃສ່ຂໍ້ມູນໃຫ້ຄົບຖ້ວນ",
   Placeholder = "ກະລຸນາຕື່ມຂໍ້ມູນ",
   ActiveStatus = "ສະຖານະການໃຊ້ງານ",
-
   Account = "ບັນຊິຜູ້ໃຊ້",
   Unit = "ຫົວໜ່ວຍ",
   Category = "ປະເພດ",
@@ -120,7 +120,7 @@ export enum messageTranslation {
   Code = "ລະຫັດການບໍລິການ",
   UserName = "ຊື່ຜູ້ໃ້ຊ້ງານ",
   Role = "ຕຳແໜ່ງ",
-  Company = "ບໍລິສັດ",
+  Company = "ລູກຄ້າ",
   Password = "ລະຫັດ",
   ResetPassword = "ຣີເຊັດລະຫັດ",
   CurrentPassword = "ລະຫັດລ່າສຸດ",
@@ -158,6 +158,7 @@ export const CategoryTranslation: Record<Category, string> = {
   WAREHOUSE_SERVICE: "ຄ່າສາງ",
   GOVERNMENT_SERVICE: "ຄ່າແຈ້ງເອກະສານ",
   GOVERNMENT_VAT: "ອມພ",
+  ETC: "ອື່ນ",
 };
 
 export const PaidStatusTranslation: Record<PaidType, string> = {
@@ -175,3 +176,12 @@ export const UnitTranslation: Record<Unit, string> = {
   PAGES: "ໜ້າ",
   PERSON: "ຄົນ",
 };
+
+export enum Sets {
+  "IM8_IMPORT" = "IM8_IMPORT",
+  "IM4_IMPORT" = "IM4_IMPORT",
+  "IM5_IMPORT" = "IM5_IMPORT",
+  "EX8_EXPORT" = "EX8_EXPORT",
+  "EX5_EXPORT" = "EX5_EXPORT",
+  "EX4_EXPORT" = "EX4_EXPORT",
+}

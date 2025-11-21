@@ -66,6 +66,7 @@ export async function GET(request: NextRequest) {
             subSaleInvoices: { select: { id: true, saleInvoiceNo: true } },
             createdBy: { select: { fullName: true } },
             updatedBy: { select: { fullName: true } },
+            updatedAt: true,
           },
           orderBy: { createdAt: "desc" },
         }),

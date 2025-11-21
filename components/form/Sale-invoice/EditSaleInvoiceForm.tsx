@@ -23,6 +23,7 @@ interface CartItem {
   cost: number;
   price: number;
   quantity: number;
+  details?: string;
 }
 
 export default function EditSaleInvoiceForm({
@@ -32,7 +33,13 @@ export default function EditSaleInvoiceForm({
   type,
 }: EditInvoiceFormProps) {
   const api = createApiWithAlert();
-  const { showSuccess, showError, showWarning } = useAlert();
+  const {
+    showSuccess,
+    showError,
+    showWarning,
+    showProcessing,
+    closeProcessing,
+  } = useAlert();
 
   // States
   const [services, setServices] = useState<any[]>([]);
@@ -69,9 +76,10 @@ export default function EditSaleInvoiceForm({
           id: item.id,
           serviceId: item.service?.id,
           name: item.service?.name,
-          price: item.service?.price,
-          cost: item.service?.cost,
+          price: item.price,
+          cost: item.cost,
           quantity: item.quantity,
+          details: item.details,
         })
       );
       setCart(cartItems);
@@ -107,6 +115,13 @@ export default function EditSaleInvoiceForm({
       cart.map((item) => (item.id === id ? { ...item, cost: newCost } : item))
     );
   };
+  const updateDetails = (id: number, details: string) => {
+    setCart(
+      cart.map((item) =>
+        item.id === id ? { ...item, details: details } : item
+      )
+    );
+  };
 
   const addToCart = (service: any) => {
     const existingItem = cart.find((item) => item.serviceId === service.id);
@@ -124,6 +139,7 @@ export default function EditSaleInvoiceForm({
         cost: service.cost || 0,
         price: service.price || 0,
         quantity: 1,
+        details: "",
       };
       setCart([...cart, newItem]);
     }
@@ -153,6 +169,7 @@ export default function EditSaleInvoiceForm({
       showWarning("ກະລຸນາເພີ່ມສິນຄ້າລົງກະຕ່າ");
       return;
     }
+    showProcessing();
 
     const updateData = {
       items: cart.map((item) => ({
@@ -164,7 +181,7 @@ export default function EditSaleInvoiceForm({
     };
 
     const result = await updateSaleInvoice(invoiceId, updateData);
-
+    closeProcessing();
     if (result?.success) {
       showSuccess(result.message);
       onSuccess?.();
@@ -343,6 +360,19 @@ export default function EditSaleInvoiceForm({
                     >
                       <Plus size={14} />
                     </button>
+                  </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs text-gray-600 w-16">
+                      {messageTranslation.Details}:
+                    </span>
+                    <input
+                      type="text"
+                      value={item.details}
+                      onChange={(e) =>
+                        updateDetails(item.id, e.target.value || "")
+                      }
+                      className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    />
                   </div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs text-gray-600 w-16">

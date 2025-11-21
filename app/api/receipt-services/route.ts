@@ -50,6 +50,7 @@ export async function GET(request: NextRequest) {
             totalAmount: true,
             createdAt: true,
             type: true,
+            updatedAt: true,
             createdBy: { select: { fullName: true } },
             updatedBy: { select: { fullName: true } },
           },

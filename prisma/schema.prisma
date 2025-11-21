@@ -83,6 +83,7 @@ enum Category {
   WAREHOUSE_SERVICE
   GOVERNMENT_SERVICE
   GOVERNMENT_VAT
+  ETC
 }
 
 enum Unit {
@@ -101,6 +102,7 @@ model Service {
   price                Decimal               @db.Decimal(10, 2)
   unit                 Unit                  @default(FILES)
   category             Category              @default(WAREHOUSE_SERVICE)
+  sets                 Json?
   createdById          Int
   createdBy            User                  @relation("ServiceCreator", fields: [createdById], references: [id])
   updatedById          Int?
@@ -152,6 +154,7 @@ model SaleInvoice {
   updatedById         Int?
   updatedBy           User?                 @relation("SaleInvoiceUpdater", fields: [updatedById], references: [id])
   saleInvoiceServices SaleInvoice_Service[]
+  updatedAt           DateTime?
 
   @@unique([saleInvoiceNo, type])
   @@index([type])
@@ -166,6 +169,7 @@ model SaleInvoice_Service {
   invoice   SaleInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   serviceId Int
   service   Service     @relation(fields: [serviceId], references: [id])
+  details   Json?
   quantity  Float
   vat       Decimal     @db.Decimal(10, 2)
   cost      Decimal     @db.Decimal(10, 2)
@@ -191,6 +195,7 @@ model ReceiptService {
   updatedById  Int?
   updatedBy    User?           @relation("BillUpdater", fields: [updatedById], references: [id])
   saleInvoices SaleInvoice[]
+  updatedAt    DateTime?
 
   @@unique([invoiceNo, type])
   @@index([type])

@@ -19,6 +19,7 @@ import {
   messageTranslation,
   PermissionConst,
   searchBy,
+  Sets,
   UnitTranslation,
 } from "@/lib/constant";
 import Loader from "@/components/Loader";
@@ -63,85 +64,124 @@ export default function ServicesPage() {
   };
 
   const showProductForm = async (service?: any) => {
-    // Get existing warehouse IDs for the product
-
     const { value: formData } = await Swal.fire({
       title: service
         ? edit(messageTranslation.Service)
         : create(messageTranslation.Service),
       html: `
-        <div style="text-align: left;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
-            messageTranslation.Service
-          }</label>
-          <input 
-            id="swal-name" 
-            class="swal2-input" 
-            placeholder=${messageTranslation.Placeholder}
-            value="${service?.name || ""}"
-            style="margin-bottom: 15px;"
-          >
-          <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
-            messageTranslation.Category
-          }</label>
-          <select 
-            id="swal-category" 
-            style="width: 70%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px; font-size: 20px;"
-          >
-            <option value="">-- ${messageTranslation.Category} --</option>
-            ${Object.values(Category)
-              .map(
-                (cat) =>
-                  `<option value="${cat}" ${
-                    service?.category === cat ? "selected" : ""
-                  }>${CategoryTranslation[cat]}</option>`
-              )
-              .join("")}
-          </select>
-          <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
-            messageTranslation.Unit
-          }</label>
-          <select 
-            id="swal-unit" 
-            style="width: 70%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px; font-size: 20px;"
-          >
-            <option value="">-- ${messageTranslation.Unit} --</option>
-            ${Object.values(Unit)
-              .map(
-                (unit) =>
-                  `<option value="${unit}" ${
-                    service?.unit === unit ? "selected" : ""
-                  }>${UnitTranslation[unit]}</option>`
-              )
-              .join("")}
-          </select>
-      
-          <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
-            messageTranslation.Cost
-          }</label>
-          <input 
-            id="swal-cost" 
-            class="swal2-input" 
-            type="number"
-            step="0.01"
-            placeholder="${messageTranslation.Placeholder}"
-            value="${service?.cost}"
-            style="margin-bottom: 15px;"
-          >
-           <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
-             messageTranslation.Price
-           }</label>
-          <input 
-            id="swal-price" 
-            class="swal2-input" 
-            type="number"
-            step="0.01"
-            placeholder="${messageTranslation.Placeholder}"
-            value="${service?.price}"
-            style="margin-bottom: 15px;"
-          >
+      <div style="text-align: left;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
+          messageTranslation.Service
+        }</label>
+        <input 
+          id="swal-name" 
+          class="swal2-input" 
+          placeholder=${messageTranslation.Placeholder}
+          value="${service?.name || ""}"
+          style="margin-bottom: 15px;"
+        >
+        <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
+          messageTranslation.Category
+        }</label>
+        <select 
+          id="swal-category" 
+          style="width: 70%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px; font-size: 20px;"
+        >
+          <option value="">-- ${messageTranslation.Category} --</option>
+          ${Object.values(Category)
+            .map(
+              (cat) =>
+                `<option value="${cat}" ${
+                  service?.category === cat ? "selected" : ""
+                }>${CategoryTranslation[cat]}</option>`
+            )
+            .join("")}
+        </select>
+        
+        <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+          ${messageTranslation.Set}
+        </label>
+        <div 
+          id="swal-sets-container"
+          style="
+            width: 70%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            margin-bottom: 15px; 
+            max-height: 150px; 
+            overflow-y: auto;
+            background-color: #fff;
+          "
+        >
+          ${Object.values(Sets)
+            .map(
+              (s) => `
+                <div style="margin-bottom: 8px;">
+                  <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input 
+                      type="checkbox" 
+                      name="sets" 
+                      value="${s}" 
+                      ${
+                        Array.isArray(service?.sets) && service.sets.includes(s)
+                          ? "checked"
+                          : ""
+                      }
+                      style="margin-right: 8px; width: 18px; height: 18px; cursor: pointer;"
+                    >
+                    <span style="font-size: 16px;">${s}</span>
+                  </label>
+                </div>
+              `
+            )
+            .join("")}
         </div>
-      `,
+
+        <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
+          messageTranslation.Unit
+        }</label>
+        <select 
+          id="swal-unit" 
+          style="width: 70%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px; font-size: 20px;"
+        >
+          <option value="">-- ${messageTranslation.Unit} --</option>
+          ${Object.values(Unit)
+            .map(
+              (unit) =>
+                `<option value="${unit}" ${
+                  service?.unit === unit ? "selected" : ""
+                }>${UnitTranslation[unit]}</option>`
+            )
+            .join("")}
+        </select>
+    
+        <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
+          messageTranslation.Cost
+        }</label>
+        <input 
+          id="swal-cost" 
+          class="swal2-input" 
+          type="number"
+          step="0.01"
+          placeholder="${messageTranslation.Placeholder}"
+          value="${service?.cost || ""}"
+          style="margin-bottom: 15px;"
+        >
+        <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
+          messageTranslation.Price
+        }</label>
+        <input 
+          id="swal-price" 
+          class="swal2-input" 
+          type="number"
+          step="0.01"
+          placeholder="${messageTranslation.Placeholder}"
+          value="${service?.price || ""}"
+          style="margin-bottom: 15px;"
+        >
+      </div>
+    `,
       focusConfirm: false,
       confirmButtonText: messageTranslation.Submit,
       showCancelButton: true,
@@ -150,16 +190,25 @@ export default function ServicesPage() {
       preConfirm: () => {
         const name = (
           document.getElementById("swal-name") as HTMLInputElement
-        )?.value?.trim();
+        )?.value.trim();
         const category = (
           document.getElementById("swal-category") as HTMLSelectElement
         )?.value;
         const unit = (document.getElementById("swal-unit") as HTMLSelectElement)
           ?.value;
+
+        // Get all checked checkboxes for sets
+        const sets = Array.from(
+          document.querySelectorAll<HTMLInputElement>(
+            'input[name="sets"]:checked'
+          )
+        ).map((checkbox) => checkbox.value);
+
         const cost = parseFloat(
           (document.getElementById("swal-cost") as HTMLInputElement)?.value ||
             "0"
         );
+
         const price = parseFloat(
           (document.getElementById("swal-price") as HTMLInputElement)?.value ||
             "0"
@@ -173,6 +222,7 @@ export default function ServicesPage() {
         return {
           name,
           category,
+          sets, // array of selected checkbox values
           unit,
           cost,
           price,
@@ -304,11 +354,15 @@ export default function ServicesPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {messageTranslation.Name}
                 </th>
-
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {messageTranslation.Unit}
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {messageTranslation.Set}
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {messageTranslation.Category}
                 </th>
-
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {messageTranslation.Cost}
                 </th>
@@ -336,8 +390,10 @@ export default function ServicesPage() {
                   stt: number;
                   name: string;
                   category: Category;
+                  unit: Unit;
                   cost: number;
                   price: number;
+                  sets: any;
                   createdBy: { fullName: string };
                   updatedBy: { fullName: string };
                   activeStatus: ActiveState;
@@ -350,7 +406,27 @@ export default function ServicesPage() {
                       {service.name}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {CategoryTranslation[service.category as Category]}
+                      {CategoryTranslation[service.category]}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {UnitTranslation[service.unit]}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      {Array.isArray(service.sets) &&
+                      service.sets.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                          {service.sets.map((s: string, index: number) => (
+                            <span
+                              key={`${s}-${index}`}
+                              className="inline-flex items-center px-2.5 py-0.5 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full border border-indigo-200"
+                            >
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 italic">No sets</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {formatCurrency(service.cost)}

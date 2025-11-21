@@ -88,7 +88,7 @@ export default function InvoicePage() {
       />
     );
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-8 max-w-8xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-800">
@@ -183,6 +183,9 @@ export default function InvoicePage() {
                     {messageTranslation.CreatedAt}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {messageTranslation.UpdatedAt}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.CreatedBy}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -210,6 +213,9 @@ export default function InvoicePage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {formatDate(invoice.createdAt)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {formatDate(invoice.updatedAt)}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-800">
                       {formatCurrency(invoice.totalAmount)}
