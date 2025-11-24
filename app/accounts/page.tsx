@@ -19,6 +19,7 @@ import {
   filter,
   messageTranslation,
   PermissionConst,
+  searchBy,
 } from "@/lib/constant";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -184,18 +185,9 @@ export default function AccountsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
-            placeholder={messageTranslation.Placeholder}
+            placeholder={searchBy(messageTranslation.UserName)}
             value={search.userName}
             onChange={(e) => setSearch({ ...search, userName: e.target.value })}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
-          <input
-            type="text"
-            placeholder={messageTranslation.Placeholder}
-            value={search.companyName}
-            onChange={(e) =>
-              setSearch({ ...search, companyName: e.target.value })
-            }
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
         </div>

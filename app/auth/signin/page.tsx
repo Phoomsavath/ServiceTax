@@ -31,7 +31,7 @@ export default function PremiumLoginForm() {
         router.push("/");
       }, 1500);
     } else {
-      showError(messageTranslation.SignInFailed);
+      showError(result?.error as string);
     }
   };
 

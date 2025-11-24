@@ -38,15 +38,13 @@ export default function EditBillForm({
 
   const [company, setCompany] = useState<string>("");
   const [invoiceNo, setInvoiceNo] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-
   useEffect(() => {
     loadInitialData();
   }, [billId]);
 
   useEffect(() => {
     loadInvoices();
-  }, [searchTerm]);
+  }, []);
 
   const loadInitialData = async () => {
     if (!billId) return;
@@ -85,10 +83,6 @@ export default function EditBillForm({
   const loadInvoices = async () => {
     try {
       const params = new URLSearchParams();
-
-      // Add filters conditionally
-      if (searchTerm) params.append("invoiceNo", searchTerm);
-
       const { data } = await api.get(
         `/sale-invoices?type=${
           InvoiceType.INVOICE

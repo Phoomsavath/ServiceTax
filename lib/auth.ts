@@ -25,7 +25,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          throw new Error(messageTranslation.SignInFailed);
+          throw new Error(messageTranslation.NotFound);
         }
         if (user.activeStatus === ActiveState.INACTIVE)
           throw new Error(messageTranslation.SignInFailed);
