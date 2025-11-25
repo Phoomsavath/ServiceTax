@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import { Search, ShoppingCart, Plus, Minus, X, Package } from "lucide-react";
 
 import { formatCurrency } from "@/lib/getCurrencySymbol";
-import { createApiWithAlert } from "@/lib/apiWithAlert";
+import { useApiWithAlert } from "@/lib/apiWithAlert";
 import { useAlert } from "@/app/hooks/useAlert";
 import {
   edit,
@@ -36,7 +36,7 @@ export default function EditSaleInvoiceForm({
   onSuccess,
   type,
 }: EditInvoiceFormProps) {
-  const api = createApiWithAlert();
+  const api = useApiWithAlert();
   const {
     showSuccess,
     showError,

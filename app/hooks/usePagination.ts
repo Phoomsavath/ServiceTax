@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import { createApiWithAlert } from "@/lib/apiWithAlert";
+import { useState, useEffect, useCallback } from "react";
+import { useApiWithAlert } from "@/lib/apiWithAlert";
 
-interface Pagination {
+export interface Pagination {
   currentPage: number;
   totalPages: number;
   totalItems: number;
@@ -9,11 +9,11 @@ interface Pagination {
   hasPrev: boolean;
 }
 
-interface Filters {
+export interface Filters {
   [key: string]: any;
 }
 
-interface UsePaginatedDataResult<T = any> {
+export interface UsePaginatedDataResult<T> {
   items: T[];
   pagination: Pagination;
   loading: boolean;
@@ -25,14 +25,14 @@ interface UsePaginatedDataResult<T = any> {
   reloadData: () => void;
 }
 
-export function usePagination<T = any>(
+export function usePagination<T>(
   apiUrl: string,
   defaultFilters: Filters = {},
   defaultPage = 1,
   defaultLimit = 50
 ): UsePaginatedDataResult<T> {
   const [items, setItems] = useState<T[]>([]);
-  const api = createApiWithAlert();
+  const api = useApiWithAlert();
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
@@ -44,7 +44,7 @@ export function usePagination<T = any>(
   const [page, setPage] = useState(defaultPage);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
 
-  const loadData = async (p = page, currentFilters = filters) => {
+  const loadData = useCallback(async (p = page, currentFilters = filters) => {
     setLoading(true);
 
     try {
@@ -56,13 +56,12 @@ export function usePagination<T = any>(
 
       const { data: dataRes } = await api.get(apiUrl, {
         params,
-        withCredentials: true, // สำหรับ NextAuth cookie
+        withCredentials: true,
       });
 
       if (dataRes.data) {
         setItems(dataRes.data);
         setPagination(dataRes.pagination);
-        setLoading(false);
       } else {
         setItems([]);
         setPagination({
@@ -74,6 +73,7 @@ export function usePagination<T = any>(
         });
       }
     } catch (err: any) {
+      console.error("Failed to load data", err);
       setItems([]);
       setPagination({
         currentPage: 1,
@@ -82,9 +82,10 @@ export function usePagination<T = any>(
         hasNext: false,
         hasPrev: false,
       });
-      setLoading(false); // ← add this
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [apiUrl, defaultLimit]);
 
   const applyFilters = (newFilters: Filters) => {
     setFilters(newFilters);
@@ -102,7 +103,7 @@ export function usePagination<T = any>(
 
   useEffect(() => {
     loadData(page, filters);
-  }, [page, filters, apiUrl]);
+  }, [page, filters, loadData]);
 
   return {
     items,

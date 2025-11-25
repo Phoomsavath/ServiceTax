@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { formatCurrency } from "@/lib/getCurrencySymbol";
 import Loader from "@/components/Loader";
-import { createApiWithAlert } from "@/lib/apiWithAlert";
+import { useApiWithAlert } from "@/lib/apiWithAlert";
 
 const FinancialDashboard = () => {
   const [data, setData] = useState<any>(null);
@@ -33,7 +33,7 @@ const FinancialDashboard = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedCompany, setSelectedCompany] = useState("all");
   const [companies, setCompanies] = useState<any[]>([]);
-  const api = createApiWithAlert();
+  const api = useApiWithAlert();
   // Fetch data from API
   useEffect(() => {
     const fetchData = async () => {

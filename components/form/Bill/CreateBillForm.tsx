@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Search, ShoppingCart, Plus, Minus, X, Package } from "lucide-react";
 import { useAlert } from "@/app/hooks/useAlert";
 import { formatCurrency } from "@/lib/getCurrencySymbol";
-import { createApiWithAlert } from "@/lib/apiWithAlert";
+import { useApiWithAlert } from "@/lib/apiWithAlert";
 import {
   create,
   messageTranslation,
@@ -39,7 +39,7 @@ export default function CreateBillForm({
 
   const [selectedCompany, setSelectedCompany] = useState<any>("");
   const [cart, setCart] = useState<CartItem[]>([]);
-  const api = createApiWithAlert();
+  const api = useApiWithAlert();
   const [companies, setCompanies] = useState<any[]>([]);
   // 2️⃣ Load products whenever warehouse, category, or searchTerm change
 

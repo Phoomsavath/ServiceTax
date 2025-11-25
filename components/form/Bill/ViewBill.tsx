@@ -9,7 +9,7 @@ import { useAlert } from "@/app/hooks/useAlert";
 import { useReactToPrint } from "react-to-print";
 import { formatDate } from "@/lib/formateTime";
 
-import { createApiWithAlert } from "@/lib/apiWithAlert";
+import { useApiWithAlert } from "@/lib/apiWithAlert";
 import { useRouter } from "next/navigation";
 import { messageTranslation } from "@/lib/constant";
 import Loader from "@/components/Loader";
@@ -27,7 +27,7 @@ export default function ViewBill({
   textOnly,
 }: ViewInvoiceFormProps) {
   const { user } = useAuth();
-  const api = createApiWithAlert();
+  const api = useApiWithAlert();
   const [receiptService, setReceiptService] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);

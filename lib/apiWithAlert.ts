@@ -3,7 +3,7 @@ import axios from "axios";
 
 let lastErrorTime = 0;
 
-export function createApiWithAlert() {
+export function useApiWithAlert() {
   const { showError, showWarning } = useAlert();
   const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",

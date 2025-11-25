@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Search, ShoppingCart, Plus, Minus, X, Package } from "lucide-react";
 import { useAlert } from "@/app/hooks/useAlert";
 import { formatCurrency } from "@/lib/getCurrencySymbol";
-import { createApiWithAlert } from "@/lib/apiWithAlert";
+import { useApiWithAlert } from "@/lib/apiWithAlert";
 import {
   create,
   messageTranslation,
@@ -47,7 +47,7 @@ export default function CreateSaleInvoiceForm({
   const [companies, setCompanies] = useState<any[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<any>("");
   const [cart, setCart] = useState<CartItem[]>([]);
-  const api = createApiWithAlert();
+  const api = useApiWithAlert();
   const [deliveryPoint, setDeliveryPoint] = useState("");
   const [selectedPaidStatus, setSelectedPaidStatus] = useState<PaidType>(
     PaidType.UNPAID

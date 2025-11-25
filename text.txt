@@ -1,1 +1,0 @@
-DATABASE_URL="mysql://Ondev:5P22rAA!NjlEZj[g@saferive.com:3306/webservicetax"

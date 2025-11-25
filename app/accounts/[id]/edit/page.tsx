@@ -2,7 +2,7 @@
 
 import React, { use, useActionState, useEffect, useState } from "react";
 import { Permission, Role } from "@prisma/client";
-import { createApiWithAlert } from "@/lib/apiWithAlert";
+import { useApiWithAlert } from "@/lib/apiWithAlert";
 import { useRouter } from "next/navigation";
 import {
   initialState,
@@ -17,7 +17,7 @@ function EditAccountPage({ params }: any) {
   const unwrappedParams = use(params);
   const { id }: any = unwrappedParams;
   const router = useRouter();
-  const api = createApiWithAlert();
+  const api = useApiWithAlert();
   const [state, formAction] = useActionState(updateUser, initialState);
   const { showError, showProcessing, showSuccess } = useAlert();
   const [formUser, setFormUser] = useState({

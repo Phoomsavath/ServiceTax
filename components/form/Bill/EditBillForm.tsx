@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import { Search, ShoppingCart, Plus, Minus, X, Package } from "lucide-react";
 
 import { formatCurrency } from "@/lib/getCurrencySymbol";
-import { createApiWithAlert } from "@/lib/apiWithAlert";
+import { useApiWithAlert } from "@/lib/apiWithAlert";
 import { useAlert } from "@/app/hooks/useAlert";
 import { edit, messageTranslation } from "@/lib/constant";
 import { BillType, InvoiceType } from "@prisma/client";
@@ -28,7 +28,7 @@ export default function EditBillForm({
   onSuccess,
   type,
 }: EditInvoiceFormProps) {
-  const api = createApiWithAlert();
+  const api = useApiWithAlert();
   const { showSuccess, showError, showWarning } = useAlert();
 
   // States

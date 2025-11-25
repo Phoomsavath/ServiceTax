@@ -8,7 +8,7 @@ import { formatCurrency } from "@/lib/getCurrencySymbol";
 import { useReactToPrint } from "react-to-print";
 import { formatDate } from "@/lib/formateTime";
 
-import { createApiWithAlert } from "@/lib/apiWithAlert";
+import { useApiWithAlert } from "@/lib/apiWithAlert";
 import { messageTranslation } from "@/lib/constant";
 import Loader from "@/components/Loader";
 
@@ -25,7 +25,7 @@ export default function ViewSaleInvoice({
   textOnly,
 }: ViewInvoiceFormProps) {
   const { user } = useAuth();
-  const api = createApiWithAlert();
+  const api = useApiWithAlert();
   const [invoice, setInvoice] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
