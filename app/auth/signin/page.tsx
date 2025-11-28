@@ -4,7 +4,6 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 
 import { signIn } from "next-auth/react";
 import { useAlert } from "@/app/hooks/useAlert";
-import { useRouter } from "next/navigation";
 import { messageTranslation } from "@/lib/constant";
 
 export default function PremiumLoginForm() {

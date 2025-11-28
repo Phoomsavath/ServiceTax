@@ -50,11 +50,12 @@ export default function CreateBillForm({
 
   // 2️⃣ Load products whenever warehouse, category, or searchTerm change
   useEffect(() => {
-    loadInvoices();
-  }, [selectedCompany]);
-  useEffect(() => {
     loadCompanies();
   }, []);
+  useEffect(() => {
+    loadInvoices();
+  }, [selectedCompany]);
+
   // Reset cart when company changes
   useEffect(() => {
     if (selectedCompany) {
@@ -69,17 +70,12 @@ export default function CreateBillForm({
   };
 
   const loadInvoices = async () => {
-    try {
-      const { data } = await api.get(
-        `/sale-invoices?type=${
-          InvoiceType.INVOICE
-        }&billId=${"unlinked"}&companyId=${selectedCompany}`
-      );
-
-      setInvoices(data.success ? data.data : []);
-    } catch (error) {
-      setInvoices([]);
-    }
+    const { data } = await api.get(
+      `/sale-invoices?type=${
+        InvoiceType.INVOICE
+      }&billId=${"unlinked"}&companyId=${selectedCompany}`
+    );
+    setInvoices(data.success ? data.data : []);
   };
 
   const addToCart = (invoice: any) => {
@@ -160,13 +156,6 @@ export default function CreateBillForm({
                 : messageTranslation.ReceiptService
             )}
           </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {searchBy(messageTranslation.Name)}
-              </label>
-            </div>
-          </div>
         </div>
 
         {/* Products Grid */}

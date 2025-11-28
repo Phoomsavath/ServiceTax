@@ -330,65 +330,65 @@ export default function CustomerPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {companies.map(
-                (company: {
+              {(
+                companies as Array<{
                   id: string;
                   stt: number;
                   name: string;
                   phone: string;
                   address: string;
                   activeStatus: ActiveState;
-                }) => (
-                  <tr key={company.id} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                      {company.stt}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                      {company.name}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {company.phone || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                      {company.address || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <span
-                        className={`font-medium ${
-                          company.activeStatus === ActiveState.ACTIVE
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {activeStatusTranslation[company.activeStatus]}
-                      </span>
-                    </td>
+                }>
+              ).map((company) => (
+                <tr key={company.id} className="hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                    {company.stt}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                    {company.name}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {company.phone || "-"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                    {company.address || "-"}
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    <span
+                      className={`font-medium ${
+                        company.activeStatus === ActiveState.ACTIVE
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {activeStatusTranslation[company.activeStatus]}
+                    </span>
+                  </td>
 
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        {hasPermission(PermissionConst.COMPANY_UPDATE) && (
-                          <button
-                            onClick={() => showCustomerForm(company)}
-                            className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition"
-                          >
-                            <Edit size={14} />
-                            {messageTranslation.Update}
-                          </button>
-                        )}
-                        {hasPermission(PermissionConst.COMPANY_DELETE) && (
-                          <button
-                            onClick={() => handleActiveStatus(company)}
-                            className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition"
-                          >
-                            <Trash size={14} />
-                            {messageTranslation.SettingStatus}
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )
-              )}
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      {hasPermission(PermissionConst.COMPANY_UPDATE) && (
+                        <button
+                          onClick={() => showCustomerForm(company)}
+                          className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition"
+                        >
+                          <Edit size={14} />
+                          {messageTranslation.Update}
+                        </button>
+                      )}
+                      {hasPermission(PermissionConst.COMPANY_DELETE) && (
+                        <button
+                          onClick={() => handleActiveStatus(company)}
+                          className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition"
+                        >
+                          <Trash size={14} />
+                          {messageTranslation.SettingStatus}
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
