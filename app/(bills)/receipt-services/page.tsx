@@ -29,9 +29,10 @@ export default function InvoicePage() {
   const [mode, setMode] = useState<viewMode>(viewMode.List);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const { hasPermission } = useAuth();
+  const [companies, setCompanies] = useState<any[]>([]);
   const [search, setSearch] = useState({
     invoiceNo: "",
-    // customerName: "",
+    company: "",
   });
   const {
     items: receiptServices,
@@ -46,14 +47,14 @@ export default function InvoicePage() {
   const handleApplyFilters = () => {
     applyFilters({
       invoiceNo: search.invoiceNo,
-      // customerName: search.customerName,
+      companyId: search.company,
     });
   };
 
   const handleClearFilters = () => {
     setSearch({
       invoiceNo: "",
-      //    customerName: "",
+      company: "",
     });
     clearFilters();
   };
@@ -122,15 +123,18 @@ export default function InvoicePage() {
             }
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
-          {/* <input
-            type="text"
-            placeholder={t("searchBy", { name: t("supplier") })}
-            value={search.customerName}
-            onChange={(e) =>
-              setSearch({ ...search, customerName: e.target.value })
-            }
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          /> */}
+          <select
+            value={search.company}
+            onChange={(e) => setSearch({ ...search, company: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+          >
+            <option value="all">-{messageTranslation.Company}-</option>
+            {companies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex justify-end mt-4 gap-2">

@@ -7,7 +7,6 @@ export function useApiWithAlert() {
   const { showError, showWarning } = useAlert();
   const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
-    timeout: 15000,
     headers: { "Content-Type": "application/json" },
   });
 
@@ -15,7 +14,7 @@ export function useApiWithAlert() {
     (response) => response,
     (error) => {
       const now = Date.now();
-      if (now - lastErrorTime < 500) return Promise.reject(error); // ignore rapid duplicates
+      if (now - lastErrorTime < 500) return Promise.reject(error);
       lastErrorTime = now;
 
       const status = error.response?.status;

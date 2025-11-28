@@ -97,7 +97,7 @@ export default function ViewSaleInvoice({
                 {isPrinting ? "ກຳລັງປີ້ນ..." : "ປີ້ນ"}
               </button>
               <p className="text-gray-600 mt-1">
-                {messageTranslation.InvoiceNo}: {invoice.saleInvoiceNo}
+                {textOnly}: {invoice.saleInvoiceNo}
               </p>
             </div>
           </div>
@@ -175,12 +175,12 @@ export default function ViewSaleInvoice({
                       <td className="px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900">
                         {index + 1}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
                         <div className="font-medium text-gray-900">
                           {item.service.name}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
                         <div className="font-medium text-gray-900 text-xs">
                           {(item.details || "N/A")
                             .split(",")
@@ -208,7 +208,7 @@ export default function ViewSaleInvoice({
               <tfoot className="bg-gray-50">
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-4 text-right font-semibold text-gray-700"
                   >
                     {messageTranslation.TotalAmount}:
@@ -240,16 +240,18 @@ export default function ViewSaleInvoice({
                     /> */}
 
                     <h1 className="text-3xl font-bold text-gray-800">
-                      {"P & Safe Co., Ltd."}
+                      {"ບໍລິສັດ P&Safe CO.,LTD"}
                     </h1>
                   </div>
 
                   <p className="text-sm text-gray-600 mt-1">
-                    ສະຖານທີ່ / Address:
-                    {"Company Address"}
+                    ສະຖານທີ່ / Address: ບ.ສວນສະຫວັນ ມ.ປາກເຊ ຂ.ຈຳປາສັກ
                   </p>
                   <p className="text-sm text-gray-600">
-                    ເບີ / Tel: {"Phone Number"}
+                    ເບີ / Tel: 020 56628998 / 020 55351234 / 020 99954456
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    ເລກຜູ້ເສຍອາກອນ /Tax ID : 227085846-9-00
                   </p>
                 </div>
 
@@ -282,6 +284,9 @@ export default function ViewSaleInvoice({
                 </p>
                 <p className="text-sm text-gray-600">
                   ເບີ/Tel: {invoice.company.phone || ""}
+                </p>
+                <p className="text-sm text-gray-600">
+                  ເລກຜູ້ເສຍອາກອນ /Tax ID: {invoice.company.taxNumber || ""}
                 </p>
               </div>
 
@@ -322,7 +327,7 @@ export default function ViewSaleInvoice({
                       ຈຳນວນ / Qty
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
-                      ລວມ /Total
+                      ລວມ / Total
                     </th>
                   </tr>
                 </thead>
@@ -372,7 +377,7 @@ export default function ViewSaleInvoice({
               <tfoot className="bg-gray-50">
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-4 py-4 text-right font-semibold text-gray-700 text-base"
                   >
                     ຍອດລວມທັງໝົດ / Total Amount:

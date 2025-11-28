@@ -11,7 +11,6 @@ export default function PremiumLoginForm() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
   const [focusedField, setFocusedField] = useState("");
   const { showSuccess, showProcessing, showError, closeProcessing } =
     useAlert();
@@ -27,9 +26,7 @@ export default function PremiumLoginForm() {
     closeProcessing();
     if (result?.ok) {
       showSuccess(messageTranslation.SignInSuccess);
-      setTimeout(() => {
-        router.push("/");
-      }, 1500);
+      window.location.href = "/";
     } else {
       showError(result?.error as string);
     }

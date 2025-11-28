@@ -13,7 +13,6 @@ import {
 } from "@/lib/constant";
 import { BillType, InvoiceType } from "@prisma/client";
 import { createReceiptService } from "@/action/bills";
-import Loader from "@/components/Loader";
 
 interface CreateInvoiceFormProps {
   onCancel: () => void;
@@ -33,7 +32,13 @@ export default function CreateBillForm({
   onSuccess,
   type,
 }: CreateInvoiceFormProps) {
-  const { showError, showSuccess, showWarning } = useAlert();
+  const {
+    showError,
+    showSuccess,
+    showWarning,
+    showProcessing,
+    closeProcessing,
+  } = useAlert();
   // States
   const [invoices, setInvoices] = useState<any[]>([]);
 
@@ -65,12 +70,10 @@ export default function CreateBillForm({
 
   const loadInvoices = async () => {
     try {
-      const params = new URLSearchParams();
-
       const { data } = await api.get(
         `/sale-invoices?type=${
           InvoiceType.INVOICE
-        }&billId=${"unlinked"}&companyId=${selectedCompany}&${params.toString()}`
+        }&billId=${"unlinked"}&companyId=${selectedCompany}`
       );
 
       setInvoices(data.success ? data.data : []);
@@ -120,8 +123,9 @@ export default function CreateBillForm({
         totalAmount: item.totalAmount,
       })),
     };
+    showProcessing();
     const result = await createReceiptService(billData);
-
+    closeProcessing();
     if (result?.success) {
       showSuccess(result?.message);
       // Reset form
@@ -231,7 +235,9 @@ export default function CreateBillForm({
               onChange={(e) => setSelectedCompany(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
             >
-              <option value="">-- {messageTranslation.Company} --</option>
+              <option value="" disabled>
+                -- {messageTranslation.Company} --
+              </option>
               {companies.map((company) => (
                 <option key={company.id} value={company.id}>
                   {company.name}

@@ -1,6 +1,6 @@
 // app/api/warehouses/route.ts
 import { messageTranslation } from "@/lib/constant";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { getAuth } from "@/lib/requirePermission";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -24,11 +24,15 @@ export async function GET(request: NextRequest) {
 
     const invoiceNo = searchParams.get("invoiceNo");
     const type = searchParams.get("type");
+    const companyId = searchParams.get("companyId")
+      ? parseInt(searchParams.get("companyId")!)
+      : undefined;
 
     // Build where clause
     const where: any = {};
     if (type) where.type = type;
     if (invoiceNo) where.invoiceNo = { contains: invoiceNo };
+    if (companyId) where.companyId = companyId;
 
     // Pagination mode
     if (page && limit) {

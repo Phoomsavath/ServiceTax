@@ -175,7 +175,6 @@ export default function EditSaleInvoiceForm({
       showWarning("ກະລຸນາເພີ່ມສິນຄ້າລົງກະຕ່າ");
       return;
     }
-    showProcessing();
 
     const updateData = {
       items: cart.map((item) => ({
@@ -185,7 +184,7 @@ export default function EditSaleInvoiceForm({
         cost: item.cost,
       })),
     };
-
+    showProcessing();
     const result = await updateSaleInvoice(invoiceId, updateData);
     closeProcessing();
     if (result?.success) {

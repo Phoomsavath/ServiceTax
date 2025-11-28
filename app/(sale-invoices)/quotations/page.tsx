@@ -1,7 +1,7 @@
 "use client";
 
 import { usePagination } from "@/app/hooks/usePagination";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, RefreshCcw, Plus, Edit, Trash, Eye } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import { formatDate } from "@/lib/formateTime";
@@ -28,11 +28,14 @@ import {
   deleteSaleInvoice,
   promoteQuotationToInvoice,
 } from "@/action/saleInvoice";
+import { useApiWithAlert } from "@/lib/apiWithAlert";
 
 export default function QuotationPage() {
   const [mode, setMode] = useState<viewMode>(viewMode.List);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const { hasPermission } = useAuth();
+  const api = useApiWithAlert();
+  const [companies, setCompanies] = useState<any[]>([]);
   const {
     showConfirm,
     showProcessing,
@@ -42,8 +45,16 @@ export default function QuotationPage() {
   } = useAlert();
   const [search, setSearch] = useState({
     invoiceNo: "",
-    // customerName: "",
+    company: "",
   });
+  useEffect(() => {
+    const loadCompanies = async () => {
+      const { data: companies } = await api.get("/companies");
+      const categoriesRes = companies?.data || [];
+      setCompanies(categoriesRes);
+    };
+    loadCompanies();
+  }, []);
 
   const {
     items: invoices,
@@ -58,13 +69,13 @@ export default function QuotationPage() {
   const handleApplyFilters = () => {
     applyFilters({
       invoiceNo: search.invoiceNo,
-      // customerName: search.customerName,
+      companyId: search.company,
     });
   };
   const handleClearFilters = () => {
     setSearch({
       invoiceNo: "",
-      //    customerName: "",
+      company: "",
     });
     clearFilters();
   };
@@ -73,7 +84,7 @@ export default function QuotationPage() {
     // Get existing warehouse IDs for the product
 
     const { value: formData } = await Swal.fire({
-      title: edit(messageTranslation.Service),
+      title: messageTranslation.PromoteToInvoice,
       html: `
           <div style="text-align: left;">
             <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
@@ -216,6 +227,18 @@ export default function QuotationPage() {
             }
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
+          <select
+            value={search.company}
+            onChange={(e) => setSearch({ ...search, company: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+          >
+            <option value="all">-{messageTranslation.Company}-</option>
+            {companies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex justify-end mt-4 gap-2">

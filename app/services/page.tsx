@@ -6,7 +6,7 @@ import Pagination from "@/components/Pagination";
 import Swal from "sweetalert2";
 import { useAlert } from "@/app/hooks/useAlert";
 
-import { ActiveState, Category, Permission, Unit } from "@prisma/client";
+import { ActiveState, Category, Unit } from "@prisma/client";
 import { useAuth } from "@/app/hooks/useAuth";
 import { formatCurrency } from "@/lib/getCurrencySymbol";
 import { usePagination } from "@/app/hooks/usePagination";
@@ -30,7 +30,7 @@ import {
 } from "../../action/services";
 
 export default function ServicesPage() {
-  const [search, setSearchTerm] = useState({ name: "", code: "" });
+  const [search, setSearchTerm] = useState({ name: "", category: "" });
   const { hasPermission } = useAuth();
   const {
     showSuccess,
@@ -54,12 +54,12 @@ export default function ServicesPage() {
   const handleApplyFilters = () => {
     applyFilters({
       name: search.name,
-      code: search.code,
+      category: search.category,
     });
   };
 
   const handleClearFilters = () => {
-    setSearchTerm({ name: "", code: "" });
+    setSearchTerm({ name: "", category: "" });
     clearFilters();
   };
 
@@ -309,6 +309,20 @@ export default function ServicesPage() {
             onChange={(e) => setSearchTerm({ ...search, name: e.target.value })}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
+          <select
+            value={search.category}
+            onChange={(e) =>
+              setSearchTerm({ ...search, category: e.target.value })
+            }
+            className="w-full px-4 py-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="">-- {messageTranslation.Category} --</option>
+            {Object.values(Category).map((p) => (
+              <option key={p} value={p}>
+                {CategoryTranslation[p]}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex justify-end mt-4 gap-2">
@@ -344,18 +358,19 @@ export default function ServicesPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {messageTranslation.Stt}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {messageTranslation.Name}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {messageTranslation.Unit}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {messageTranslation.Set}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {messageTranslation.Category}
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {messageTranslation.Unit}
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {messageTranslation.Set}
+                </th>
+
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {messageTranslation.Cost}
                 </th>
@@ -377,8 +392,8 @@ export default function ServicesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {services.map(
-                (service: {
+              {(
+                services as Array<{
                   id: string;
                   stt: number;
                   name: string;
@@ -390,85 +405,84 @@ export default function ServicesPage() {
                   createdBy: { fullName: string };
                   updatedBy: { fullName: string };
                   activeStatus: ActiveState;
-                }) => (
-                  <tr key={service.id} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                      {service.stt}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                      {service.name}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {CategoryTranslation[service.category]}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {UnitTranslation[service.unit]}
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      {Array.isArray(service.sets) &&
-                      service.sets.length > 0 ? (
-                        <div className="flex flex-wrap gap-1.5 max-w-[200px]">
-                          {service.sets.map((s: string, index: number) => (
-                            <span
-                              key={`${s}-${index}`}
-                              className="inline-flex items-center px-2.5 py-0.5 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full border border-indigo-200"
-                            >
-                              {s}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 italic">No sets</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {formatCurrency(service.cost)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {formatCurrency(service.price)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {service.createdBy?.fullName || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {service.updatedBy?.fullName || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <span
-                        className={`font-medium ${
-                          service.activeStatus === ActiveState.ACTIVE
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {activeStatusTranslation[service.activeStatus]}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        {hasPermission(PermissionConst.SERVICE_UPDATE) && (
-                          <button
-                            onClick={() => showProductForm(service)}
-                            className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition"
+                }>
+              ).map((service) => (
+                <tr key={service.id} className="hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                    {service.stt}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                    {service.name}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {CategoryTranslation[service.category]}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {UnitTranslation[service.unit]}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {Array.isArray(service.sets) && service.sets.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                        {service.sets.map((s: string, index: number) => (
+                          <span
+                            key={`${s}-${index}`}
+                            className="inline-flex items-center px-2.5 py-0.5 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full border border-indigo-200"
                           >
-                            <Edit size={14} />
-                            {messageTranslation.Update}
-                          </button>
-                        )}
-                        {hasPermission(PermissionConst.SERVICE_DELETE) && (
-                          <button
-                            onClick={() => handleActiveStatus(service)}
-                            className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition"
-                          >
-                            <Trash size={14} />
-                            {messageTranslation.SettingStatus}
-                          </button>
-                        )}
+                            {s}
+                          </span>
+                        ))}
                       </div>
-                    </td>
-                  </tr>
-                )
-              )}
+                    ) : (
+                      <span className="text-gray-400 italic">No sets</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {formatCurrency(service.cost)}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {formatCurrency(service.price)}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {service.createdBy?.fullName || "-"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {service.updatedBy?.fullName || "-"}
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    <span
+                      className={`font-medium ${
+                        service.activeStatus === ActiveState.ACTIVE
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {activeStatusTranslation[service.activeStatus]}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      {hasPermission(PermissionConst.SERVICE_UPDATE) && (
+                        <button
+                          onClick={() => showProductForm(service)}
+                          className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition"
+                        >
+                          <Edit size={14} />
+                          {messageTranslation.Update}
+                        </button>
+                      )}
+                      {hasPermission(PermissionConst.SERVICE_DELETE) && (
+                        <button
+                          onClick={() => handleActiveStatus(service)}
+                          className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition"
+                        >
+                          <Trash size={14} />
+                          {messageTranslation.SettingStatus}
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}

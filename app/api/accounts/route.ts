@@ -1,7 +1,8 @@
 // app/api/accounts/route.ts
 
 import { messageTranslation } from "@/lib/constant";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
+
 import { requirePermission } from "@/lib/requirePermission";
 import { Permission, Role } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";

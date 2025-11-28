@@ -1,6 +1,6 @@
 // app/api/warehouses/route.ts
 import { messageTranslation } from "@/lib/constant";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { getAuth } from "@/lib/requirePermission";
 import { ActiveState } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
@@ -22,11 +22,13 @@ export async function GET(request: NextRequest) {
       ? parseInt(searchParams.get("limit")!)
       : undefined;
     const name = searchParams.get("name");
+    const category = searchParams.get("category");
 
     // Build where clause
     const where: any = {};
 
     if (name) where.name = { contains: name };
+    if (category) where.category = category;
 
     // Pagination mode
     if (page && limit) {

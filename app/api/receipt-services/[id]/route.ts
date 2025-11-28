@@ -1,6 +1,6 @@
 // app/api/employees/[id]/route.ts
 import { messageTranslation } from "@/lib/constant";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { getAuth } from "@/lib/requirePermission";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -30,7 +30,10 @@ export async function GET(
         id: true,
         invoiceNo: true,
         totalAmount: true,
-        company: { select: { name: true } },
+        createdAt: true,
+        company: {
+          select: { name: true, taxNumber: true, phone: true, address: true },
+        },
         saleInvoices: {
           select: {
             id: true,

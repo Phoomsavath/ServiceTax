@@ -1,6 +1,6 @@
 // app/api/warehouses/route.ts
 import { messageTranslation } from "@/lib/constant";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { getAuth } from "@/lib/requirePermission";
 import { NextRequest, NextResponse } from "next/server";
 

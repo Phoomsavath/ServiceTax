@@ -29,7 +29,13 @@ export default function EditBillForm({
   type,
 }: EditInvoiceFormProps) {
   const api = useApiWithAlert();
-  const { showSuccess, showError, showWarning } = useAlert();
+  const {
+    showSuccess,
+    showError,
+    showWarning,
+    showProcessing,
+    closeProcessing,
+  } = useAlert();
 
   // States
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -129,8 +135,9 @@ export default function EditBillForm({
         totalAmount: item.totalAmount,
       })),
     };
-
+    showProcessing();
     const result = await updateReceiptService(billId, updateData);
+    closeProcessing();
     if (result?.success) {
       showSuccess(result.message);
       onSuccess?.();

@@ -1,7 +1,7 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { handleAction } from "@/lib/handleAction";
 import { getAuth, requirePermission } from "@/lib/requirePermission";
 import { messageTranslation } from "@/lib/constant";

@@ -72,8 +72,8 @@ export enum messageTranslation {
   UpdatedBy = "ແກ້ໄຂລ້າສຸດໂດຍ",
   FullName = "ຊຶ່ແລະນາມສະກຸນ",
 
-  PromoteToInvoice = "ປ່ຽນເປັນໃບວາງບິນ",
-  PromoteToReceipt = "ປ່ຽນເປັນໃບຮັບເງິນ",
+  PromoteToInvoice = "ປ່ຽນເປັນໃບແຈ້ງໜີ້",
+  PromoteToReceipt = "ປ່ຽນເປັນໃບເກັບຄ່າບໍລິການ",
   PaidStatus = "ສະຖານະການຈ່າຍເງິນ",
   UpdatedAt = "ວັນທີແກ້ໄຂລ່າສຸດ",
 

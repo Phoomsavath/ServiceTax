@@ -2,7 +2,7 @@
 
 import { messageTranslation } from "@/lib/constant";
 import { handleAction } from "@/lib/handleAction";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/requirePermission";
 import { InvoiceType, PaidType, Permission } from "@prisma/client";
 

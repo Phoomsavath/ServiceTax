@@ -1,7 +1,7 @@
 "use server";
 import { messageTranslation } from "@/lib/constant";
 import { handleAction } from "@/lib/handleAction";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/requirePermission";
 import { ActiveState, Permission } from "@prisma/client";
 

@@ -98,7 +98,7 @@ export default function ViewBill({
                 {isPrinting ? "ກຳລັງປີ້ນ..." : "ປີ້ນ"}
               </button>
               <p className="text-gray-600 mt-1">
-                {messageTranslation.InvoiceNo}: {receiptService.invoiceNo}
+                {textOnly}: {receiptService.invoiceNo}
               </p>
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function ViewBill({
                     {messageTranslation.Stt}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.SaleInvoice}
+                    {messageTranslation.InvoiceNo}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.TotalAmount}
@@ -165,7 +165,7 @@ export default function ViewBill({
                       <td className="px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900">
                         {index + 1}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
                         <div className="font-medium text-gray-900">
                           {item.saleInvoiceNo}
                         </div>
@@ -208,23 +208,18 @@ export default function ViewBill({
                 {/* Left section (Logo + Company Info) */}
                 <div>
                   <div className="flex items-center gap-4 mb-2">
-                    {/* <img
-                      src={``}
-                      alt="Company Logo"
-                      className="w-30 h-30 object-contain"
-                    /> */}
-
                     <h1 className="text-3xl font-bold text-gray-800">
-                      {"P & Safe Co., Ltd."}
+                      {"ບໍລິສັດ P&Safe CO.,LTD"}
                     </h1>
                   </div>
-
                   <p className="text-sm text-gray-600 mt-1">
-                    ສະຖານທີ່ / Address:
-                    {"Company Address"}
+                    ສະຖານທີ່ / Address: ບ.ສວນສະຫວັນ ມ.ປາກເຊ ຂ.ຈຳປາສັກ
                   </p>
                   <p className="text-sm text-gray-600">
-                    ເບີ / Tel: {"Phone Number"}
+                    ເບີ / Tel: 020 56628998 / 020 55351234 / 020 99954456
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    ເລກຜູ້ເສຍອາກອນ /Tax ID : 227085846-9-00
                   </p>
                 </div>
 
@@ -237,14 +232,14 @@ export default function ViewBill({
               </div>
             </div>
 
-            {/* <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-gray-600">
                   <span className="font-semibold">Issued By / ອອກໃຫ້ໂດຍ:</span>{" "}
                   {user?.fullName}
                 </p>
               </div>
-            </div> */}
+            </div>
 
             {/* Customer & Warehouse Info */}
             <div className="grid grid-cols-2 gap-6 mt-6 pt-4 border-t">
@@ -257,6 +252,10 @@ export default function ViewBill({
                 </p>
                 <p className="text-sm text-gray-600">
                   ເບີ/Tel: {receiptService.company.phone || ""}
+                </p>
+                <p className="text-sm text-gray-600">
+                  ເລກຜູ້ເສຍອາກອນ /Tax ID:{" "}
+                  {receiptService.company.taxNumber || ""}
                 </p>
               </div>
 
@@ -285,7 +284,7 @@ export default function ViewBill({
                       {messageTranslation.Stt}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {messageTranslation.SaleInvoice}
+                      {messageTranslation.InvoiceNo}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {messageTranslation.TotalAmount}

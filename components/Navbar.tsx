@@ -42,7 +42,6 @@ function AntiSpamLink({
 
 const COMMON_PUBLIC = [
   { title: messageTranslation.Home, href: "/" },
-  { title: "about", href: "/about" },
 ];
 
 const ROLE_MENUS = {
@@ -184,7 +183,7 @@ export default function Navbar() {
       <div className="max-w mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 gap-2">
           <div className="flex items-center gap-8">
-            <span className="text-xl font-bold text-gray-800">Test</span>
+            <span className="text-xl font-bold text-gray-800">Web tax service</span>
 
             <div className="hidden md:flex items-center">
               {menuItems.map((item, index) =>
