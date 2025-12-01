@@ -38,7 +38,7 @@ export async function GET(
             cost: true,
             details: true,
             service: {
-              select: { name: true, group: true, unit: true },
+              select: { id: true, name: true, group: true, unit: true },
             },
           },
         },

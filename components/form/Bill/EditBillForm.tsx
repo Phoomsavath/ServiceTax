@@ -42,15 +42,16 @@ export default function EditBillForm({
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [company, setCompany] = useState<string>("");
+  const [company, setCompany] = useState<any>({ id: 0, name: "" });
   const [invoiceNo, setInvoiceNo] = useState("");
+  useEffect(() => {
+    if (company) {
+      loadInvoices();
+    }
+  }, [company]);
   useEffect(() => {
     loadInitialData();
   }, [billId]);
-
-  useEffect(() => {
-    loadInvoices();
-  }, []);
 
   const loadInitialData = async () => {
     if (!billId) return;
@@ -66,7 +67,7 @@ export default function EditBillForm({
       // Set read-only fields
       // Set editable fields
       setInvoiceNo(receiptService.invoiceNo);
-      setCompany(receiptService.company?.name || "");
+      setCompany(receiptService.company);
       // Load cart items from invoice
       const cartItems: CartItem[] = receiptService.saleInvoices.map(
         (item: any) => ({
@@ -88,12 +89,10 @@ export default function EditBillForm({
 
   const loadInvoices = async () => {
     try {
-      const params = new URLSearchParams();
       const { data } = await api.get(
-        `/sale-invoices?type=${
-          InvoiceType.INVOICE
-        }&billId=${billId}&${params.toString()}`
+        `/sale-invoices?type=${InvoiceType.INVOICE}&billId=${billId}&companyId=${company.id}`
       );
+      console.log(data);
 
       setInvoices(data.success ? data.data : []);
     } catch (error) {
@@ -246,7 +245,7 @@ export default function EditBillForm({
             </label>
             <input
               type="text"
-              value={company}
+              value={company.name}
               disabled
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 text-sm cursor-not-allowed"
             />

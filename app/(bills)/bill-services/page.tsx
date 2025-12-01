@@ -187,7 +187,7 @@ export default function BillPage() {
             onChange={(e) => setSearch({ ...search, company: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
           >
-            <option value="all">-{messageTranslation.Company}-</option>
+            <option value="all">- {messageTranslation.Company}ທັງໝົດ-</option>
             {companies.map((company) => (
               <option key={company.id} value={company.id}>
                 {company.name}

@@ -1,25 +1,26 @@
 "use client";
 
 import { Package, User, DollarSign } from "lucide-react";
-
 import { use, useEffect, useRef, useState } from "react";
 import { useAuth } from "@/app/hooks/useAuth";
 import { formatCurrency } from "@/lib/getCurrencySymbol";
 import { useAlert } from "@/app/hooks/useAlert";
 import { useReactToPrint } from "react-to-print";
 import { formatDate } from "@/lib/formateTime";
-
 import { useApiWithAlert } from "@/lib/apiWithAlert";
 import { useRouter } from "next/navigation";
-import { messageTranslation } from "@/lib/constant";
+import { messageTranslation, PaidStatusTranslation } from "@/lib/constant";
 import Loader from "@/components/Loader";
+import { PaidType } from "@prisma/client";
 
 interface ViewInvoiceFormProps {
   billId: number;
   onClose: () => void;
   onSuccess?: () => void;
   textOnly: string;
+  filterPaidStatus?: PaidType; // Optional filter prop
 }
+
 export default function ViewBill({
   billId,
   onClose,
@@ -30,15 +31,19 @@ export default function ViewBill({
   const api = useApiWithAlert();
   const [receiptService, setReceiptService] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedPaidStatus, setSelectedPaidStatus] = useState<
+    PaidType | "all"
+  >("all");
   const contentRef = useRef<HTMLDivElement>(null);
   const [isPrinting, setIsPrinting] = useState(false);
+
   const reactToPrintFn = useReactToPrint({
     contentRef,
     onBeforePrint: async () => {
       setIsPrinting(true);
     },
     onAfterPrint: () => {
-      setTimeout(() => setIsPrinting(false), 1000); // Re-enable after 1 second
+      setTimeout(() => setIsPrinting(false), 1000);
     },
   });
 
@@ -51,17 +56,10 @@ export default function ViewBill({
 
     try {
       setLoading(true);
-
-      // 1. Fetch invoice
       const { data: receiptServiceResponse } = await api.get(
         `/receipt-services/${billId}`
       );
-
-      const receiptServiceData = receiptServiceResponse.data;
-      // 2. Fetch stock data if warehouse exists
-
-      // 3. Update state
-      setReceiptService(receiptServiceData);
+      setReceiptService(receiptServiceResponse.data);
     } catch (error: any) {
       onClose();
     } finally {
@@ -69,9 +67,112 @@ export default function ViewBill({
     }
   };
 
+  // Filter invoices based on selected paid status
+  const getFilteredInvoices = () => {
+    if (!receiptService?.saleInvoices) return [];
+
+    if (selectedPaidStatus === "all") {
+      return receiptService.saleInvoices;
+    }
+
+    return receiptService.saleInvoices.filter(
+      (invoice: any) => invoice.paidStatus === selectedPaidStatus
+    );
+  };
+
+  // Calculate total amount for filtered invoices
+  const getFilteredTotal = () => {
+    const filteredInvoices = getFilteredInvoices();
+    return filteredInvoices.reduce(
+      (sum: number, invoice: any) => sum + Number(invoice.totalAmount),
+      0
+    );
+  };
+
   if (loading) {
     return <Loader />;
   }
+
+  const filteredInvoices = getFilteredInvoices();
+  const filteredTotal = getFilteredTotal();
+
+  const renderInvoicesTable = (
+    invoices: any[],
+    total: number,
+    showPaidStatus: boolean = true
+  ) => (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {messageTranslation.Stt}
+            </th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {messageTranslation.InvoiceNo}
+            </th>
+            {showPaidStatus && (
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {messageTranslation.PaidStatus}
+              </th>
+            )}
+            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {messageTranslation.TotalAmount}
+            </th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {messageTranslation.CreatedAt}
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {invoices.map((item: any, index: any) => (
+            <tr key={item.id}>
+              <td className="px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900">
+                {index + 1}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                <div className="font-medium text-gray-900">
+                  {item.saleInvoiceNo}
+                </div>
+              </td>
+              {showPaidStatus && (
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 font-medium">
+                  <span
+                    className={`px-2 py-1 text-xs rounded ${
+                      item.paidStatus === PaidType.PAID
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {PaidStatusTranslation[item.paidStatus as PaidType]}
+                  </span>
+                </td>
+              )}
+              <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 font-medium">
+                {formatCurrency(item.totalAmount)}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                {formatDate(item.createdAt)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot className="bg-gray-50">
+          <tr>
+            <td
+              colSpan={showPaidStatus ? 3 : 2}
+              className="px-6 py-4 text-right font-semibold text-gray-700"
+            >
+              {messageTranslation.TotalAmount}:
+            </td>
+            <td className="px-6 py-4 text-right font-bold text-gray-900 text-lg">
+              {formatCurrency(total)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -87,20 +188,46 @@ export default function ViewBill({
                 ←{messageTranslation.Back}
               </button>
               <h1 className="text-3xl font-bold text-gray-800">{textOnly}</h1>
-              <button
-                onClick={() => {
-                  reactToPrintFn();
-                }}
-                disabled={isPrinting}
-                className="w-full bg-gray-600 text-white p-2 rounded transition 
-             hover:bg-blue-600"
-              >
-                {isPrinting ? "ກຳລັງປີ້ນ..." : "ປີ້ນ"}
-              </button>
               <p className="text-gray-600 mt-1">
                 {textOnly}: {receiptService.invoiceNo}
               </p>
             </div>
+            <button
+              onClick={() => {
+                reactToPrintFn();
+              }}
+              disabled={isPrinting}
+              className="bg-gray-600 text-white px-4 py-2 rounded transition hover:bg-blue-600 disabled:bg-gray-400"
+            >
+              {isPrinting ? "ກຳລັງປີ້ນ..." : "ປີ້ນ"}
+            </button>
+          </div>
+
+          {/* Filter Buttons */}
+          <div className="flex gap-2 mb-4 flex-wrap">
+            <button
+              onClick={() => setSelectedPaidStatus("all")}
+              className={`px-4 py-2 rounded transition ${
+                selectedPaidStatus === "all"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              All Status
+            </button>
+            {Object.values(PaidType).map((status) => (
+              <button
+                key={status}
+                onClick={() => setSelectedPaidStatus(status)}
+                className={`px-4 py-2 rounded transition ${
+                  selectedPaidStatus === status
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {PaidStatusTranslation[status]}
+              </button>
+            ))}
           </div>
 
           {/* Invoice Info Grid */}
@@ -119,17 +246,15 @@ export default function ViewBill({
               <DollarSign className="text-blue-600" size={20} />
               <div>
                 <p className="text-sm text-gray-500">
-                  {messageTranslation.TotalAmount}
+                  {selectedPaidStatus === "all"
+                    ? "Total Amount"
+                    : "Filtered Total"}
                 </p>
-                <p className="font-semibold">
-                  {formatCurrency(receiptService.totalAmount)}
-                </p>
+                <p className="font-semibold">{formatCurrency(filteredTotal)}</p>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Stock Warnings */}
 
         {/* Items Table */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
@@ -137,75 +262,25 @@ export default function ViewBill({
             <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
               <Package size={20} />
               Invoice Items
+              {selectedPaidStatus !== "all" && (
+                <span className="text-sm font-normal text-gray-600">
+                  (Filtered:{" "}
+                  {PaidStatusTranslation[selectedPaidStatus as PaidType]})
+                </span>
+              )}
             </h2>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.Stt}
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.InvoiceNo}
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.TotalAmount}
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.CreatedAt}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {receiptService.saleInvoices.map((item: any, index: any) => {
-                  return (
-                    <tr key={item.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900">
-                        {index + 1}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
-                        <div className="font-medium text-gray-900">
-                          {item.saleInvoiceNo}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 font-medium">
-                        {formatCurrency(item.totalAmount)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
-                        {formatDate(item.createdAt)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-              <tfoot className="bg-gray-50">
-                <tr>
-                  <td
-                    colSpan={3}
-                    className="px-6 py-4 text-right font-semibold text-gray-700"
-                  >
-                    {messageTranslation.TotalAmount}:
-                  </td>
-                  <td className="px-6 py-4 text-right font-bold text-gray-900 text-lg">
-                    {formatCurrency(receiptService.totalAmount)}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+          {renderInvoicesTable(filteredInvoices, filteredTotal, true)}
         </div>
 
-        {/* Action Buttons */}
-
+        {/* Print Version */}
         <div className="hidden print:block" ref={contentRef}>
           {/* Header */}
-          <div className=" bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             {/* Company Info */}
             <div className="border-b pb-4 mb-4">
               <div className="flex justify-between items-start">
-                {/* Left section (Logo + Company Info) */}
                 <div>
                   <div className="flex items-center gap-4 mb-2">
                     <h1 className="text-3xl font-bold text-gray-800">
@@ -223,11 +298,16 @@ export default function ViewBill({
                   </p>
                 </div>
 
-                {/* Right section (Invoice title) */}
                 <div className="text-right">
                   <h1 className="text-xl font-semibold text-gray-700">
                     {textOnly}
                   </h1>
+                  {selectedPaidStatus !== "all" && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      {messageTranslation.PaidStatus}:{" "}
+                      {PaidStatusTranslation[selectedPaidStatus as PaidType]}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -241,7 +321,7 @@ export default function ViewBill({
               </div>
             </div>
 
-            {/* Customer & Warehouse Info */}
+            {/* Customer Info */}
             <div className="grid grid-cols-2 gap-6 mt-6 pt-4 border-t">
               <div>
                 <h3 className="font-semibold text-gray-700 mb-2">
@@ -274,54 +354,51 @@ export default function ViewBill({
             </div>
           </div>
 
-          {/* Items Table */}
+          {/* Print Table */}
           <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {messageTranslation.Stt}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">
+                      ລຳດັບ / Stt
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {messageTranslation.InvoiceNo}
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
+                      ເລກທີ່ / Invoice No
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {messageTranslation.TotalAmount}
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
+                      ຍອດລວມ / Total
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {messageTranslation.CreatedAt}
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
+                      ວັນທີ / Date
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {receiptService.saleInvoices.map(
-                    (item: any, index: number) => {
-                      return (
-                        <tr key={item.id}>
-                          <td className="px-4 py-3 text-left text-sm text-gray-900">
-                            {index + 1}
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-900">
-                            <div className="font-medium text-gray-900">
-                              {item.saleInvoiceNo}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-900">
-                            {formatCurrency(item.totalAmount)}
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-900">
-                            {formatDate(item.createdAt)}
-                          </td>
-                        </tr>
-                      );
-                    }
-                  )}
+                  {filteredInvoices.map((item: any, index: number) => (
+                    <tr key={item.id}>
+                      <td className="px-4 py-3 text-left text-sm text-gray-900">
+                        {index + 1}
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm text-gray-900">
+                        <div className="font-medium text-gray-900">
+                          {item.saleInvoiceNo}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm text-gray-900">
+                        {formatCurrency(item.totalAmount)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm text-gray-900">
+                        {formatDate(item.createdAt)}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6 print-footer">
+
+          <div className="bg-white rounded-lg shadow-md overflow-hidden mb-3 print-footer">
             <table className="w-full">
               <tfoot className="bg-gray-50">
                 <tr>
@@ -332,7 +409,7 @@ export default function ViewBill({
                     ຍອດລວມທັງໝົດ / Total Amount:
                   </td>
                   <td className="px-4 py-4 text-right font-bold text-gray-900 text-lg">
-                    {formatCurrency(receiptService.totalAmount)}
+                    {formatCurrency(filteredTotal)}
                   </td>
                 </tr>
               </tfoot>
@@ -340,7 +417,7 @@ export default function ViewBill({
           </div>
 
           {/* Footer - Signatures */}
-          <div className="bg-white rounded-lg shadow-md p-3">
+          <div className="bg-white rounded-lg shadow-md p-1">
             <div className="grid grid-cols-3 gap-8 mt-4">
               <div className="text-center">
                 <div className="border-b-2 border-gray-300 pb-2 mb-12">
@@ -367,7 +444,6 @@ export default function ViewBill({
             </div>
           </div>
         </div>
-        {/* Confirmation Dialog */}
       </div>
     </div>
   );

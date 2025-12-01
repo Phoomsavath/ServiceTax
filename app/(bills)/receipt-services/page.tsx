@@ -1,7 +1,7 @@
 "use client";
 
 import { usePagination } from "@/app/hooks/usePagination";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, RefreshCcw, Plus, Edit, Trash, Eye } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import { formatDate } from "@/lib/formateTime";
@@ -24,11 +24,13 @@ import Loader from "@/components/Loader";
 import ViewBill from "@/components/form/Bill/ViewBill";
 import EditBillForm from "@/components/form/Bill/EditBillForm";
 import CreateBillForm from "@/components/form/Bill/CreateBillForm";
+import { useApiWithAlert } from "@/lib/apiWithAlert";
 
 export default function InvoicePage() {
   const [mode, setMode] = useState<viewMode>(viewMode.List);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const { hasPermission } = useAuth();
+  const api = useApiWithAlert();
   const [companies, setCompanies] = useState<any[]>([]);
   const [search, setSearch] = useState({
     invoiceNo: "",
@@ -50,6 +52,14 @@ export default function InvoicePage() {
       companyId: search.company,
     });
   };
+  useEffect(() => {
+    const loadCompanies = async () => {
+      const { data: companies } = await api.get("/companies");
+      const categoriesRes = companies?.data || [];
+      setCompanies(categoriesRes);
+    };
+    loadCompanies();
+  }, []);
 
   const handleClearFilters = () => {
     setSearch({
@@ -128,7 +138,7 @@ export default function InvoicePage() {
             onChange={(e) => setSearch({ ...search, company: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
           >
-            <option value="all">-{messageTranslation.Company}-</option>
+            <option value="all">- {messageTranslation.Company}ທັງໝົດ-</option>
             {companies.map((company) => (
               <option key={company.id} value={company.id}>
                 {company.name}

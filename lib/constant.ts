@@ -169,7 +169,7 @@ export const GroupTranslation: Record<Group, string> = {
 };
 
 export const PaidStatusTranslation: Record<PaidType, string> = {
-  UNPAID: "ຍັງບໍ່ໄດ້ຈ່າຍ",
+  UNPAID: "ຄ້າງຈ່າຍ",
   PAID: "ຈ່າຍແລ້ວ",
 };
 export const activeStatusTranslation: Record<ActiveState, string> = {

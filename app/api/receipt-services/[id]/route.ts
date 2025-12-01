@@ -32,11 +32,18 @@ export async function GET(
         totalAmount: true,
         createdAt: true,
         company: {
-          select: { name: true, taxNumber: true, phone: true, address: true },
+          select: {
+            id: true,
+            name: true,
+            taxNumber: true,
+            phone: true,
+            address: true,
+          },
         },
         saleInvoices: {
           select: {
             id: true,
+            paidStatus: true,
             saleInvoiceNo: true,
             totalAmount: true,
             createdAt: true,
