@@ -3,10 +3,11 @@ import { messageTranslation } from "@/lib/constant";
 import { handleAction } from "@/lib/handleAction";
 import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/requirePermission";
-import { ActiveState, Category, Permission, Unit } from "@prisma/client";
+import { ActiveState, Category, Group, Permission, Unit } from "@prisma/client";
 
 interface serviceData {
   sets?: string[];
+  group: Group;
   name: string;
   cost: number;
   category: Category;
@@ -20,7 +21,8 @@ export async function createService(data: serviceData) {
   return handleAction(
     async () => {
       const session = await requirePermission(Permission.SERVICE_CREATE);
-      const { name, cost, category, descriptions, price, unit, sets } = data;
+      const { name, cost, category, descriptions, price, unit, sets, group } =
+        data;
 
       if (!name || !cost || !category || !price || !unit)
         throw new Error(messageTranslation.AllFiledRequired);
@@ -30,6 +32,7 @@ export async function createService(data: serviceData) {
           name,
           descriptions,
           category,
+          group,
           cost,
           sets,
           price,
@@ -55,7 +58,8 @@ export async function updateService(id: number, data: serviceData) {
     async () => {
       const session = await requirePermission(Permission.SERVICE_UPDATE);
 
-      const { name, cost, category, price, unit, descriptions, sets } = data;
+      const { name, cost, category, price, unit, descriptions, sets, group } =
+        data;
       if (!name || !cost || !category || !price || !unit)
         throw new Error(messageTranslation.AllFiledRequired);
 
@@ -64,6 +68,7 @@ export async function updateService(id: number, data: serviceData) {
         data: {
           name,
           sets,
+          group,
           descriptions,
           category,
           cost,

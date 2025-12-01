@@ -85,7 +85,7 @@ export default function EditSaleInvoiceForm({
           price: item.price,
           cost: item.cost,
           quantity: item.quantity,
-          details: item.details,
+          details: item.details || "",
         })
       );
       setCart(cartItems);

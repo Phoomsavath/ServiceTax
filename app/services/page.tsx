@@ -6,7 +6,7 @@ import Pagination from "@/components/Pagination";
 import Swal from "sweetalert2";
 import { useAlert } from "@/app/hooks/useAlert";
 
-import { ActiveState, Category, Unit } from "@prisma/client";
+import { ActiveState, Category, Group, Unit } from "@prisma/client";
 import { useAuth } from "@/app/hooks/useAuth";
 import { formatCurrency } from "@/lib/getCurrencySymbol";
 import { usePagination } from "@/app/hooks/usePagination";
@@ -16,6 +16,7 @@ import {
   create,
   edit,
   filter,
+  GroupTranslation,
   messageTranslation,
   PermissionConst,
   searchBy,
@@ -94,6 +95,23 @@ export default function ServicesPage() {
                 `<option value="${cat}" ${
                   service?.category === cat ? "selected" : ""
                 }>${CategoryTranslation[cat]}</option>`
+            )
+            .join("")}
+        </select>
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">${
+                  messageTranslation.Group
+                }</label>
+        <select 
+          id="swal-group" 
+          style="width: 70%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px; font-size: 20px;"
+        >
+          <option value="" disabled>-- ${messageTranslation.Group} --</option>
+          ${Object.values(Group)
+            .map(
+              (g) =>
+                `<option value="${g}" ${
+                  service?.group === g ? "selected" : ""
+                }>${GroupTranslation[g]}</option>`
             )
             .join("")}
         </select>
@@ -194,6 +212,9 @@ export default function ServicesPage() {
         const category = (
           document.getElementById("swal-category") as HTMLSelectElement
         )?.value;
+        const group = (
+          document.getElementById("swal-group") as HTMLSelectElement
+        )?.value;
         const unit = (document.getElementById("swal-unit") as HTMLSelectElement)
           ?.value;
 
@@ -225,6 +246,7 @@ export default function ServicesPage() {
           sets, // array of selected checkbox values
           unit,
           cost,
+          group,
           price,
         };
       },
@@ -367,10 +389,6 @@ export default function ServicesPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {messageTranslation.Unit}
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {messageTranslation.Set}
-                </th>
-
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {messageTranslation.Cost}
                 </th>
@@ -419,22 +437,6 @@ export default function ServicesPage() {
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
                     {UnitTranslation[service.unit]}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {Array.isArray(service.sets) && service.sets.length > 0 ? (
-                      <div className="flex flex-wrap gap-1.5 max-w-[200px]">
-                        {service.sets.map((s: string, index: number) => (
-                          <span
-                            key={`${s}-${index}`}
-                            className="inline-flex items-center px-2.5 py-0.5 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full border border-indigo-200"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-gray-400 italic">No sets</span>
-                    )}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
                     {formatCurrency(service.cost)}

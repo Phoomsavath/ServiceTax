@@ -1,4 +1,4 @@
-import { ActiveState, Category, PaidType, Unit } from "@prisma/client";
+import { ActiveState, Category, Group, PaidType, Unit } from "@prisma/client";
 
 export const timeToken = 60 * 60 * 10; //10h ;
 export const initialState = { success: false, message: "" };
@@ -50,6 +50,7 @@ export enum PermissionConst {
   SERVICE_DELETE = "SERVICE_DELETE",
 }
 export enum messageTranslation {
+  Group = "ກຸ່ມ",
   DashBoard = "ສັງລວມ",
   Details = "ລາຍລະອຽດ",
   Set = "ເຊັດ",
@@ -160,6 +161,11 @@ export const CategoryTranslation: Record<Category, string> = {
   GOVERNMENT_SERVICE: "ຄ່າແຈ້ງເອກະສານ",
   GOVERNMENT_VAT: "ອມພ",
   ETC: "ອື່ນ",
+};
+export const GroupTranslation: Record<Group, string> = {
+  GROUP1: "ກຸ່ມ1",
+  GROUP2: "ກຸ່ມ2",
+  GROUP3: "ກຸ່ມ3",
 };
 
 export const PaidStatusTranslation: Record<PaidType, string> = {

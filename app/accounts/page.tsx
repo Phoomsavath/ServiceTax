@@ -242,73 +242,73 @@ export default function AccountsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {users.map(
-                (user: {
+              {(
+                users as Array<{
                   id: string;
                   userName: string;
                   stt: number;
                   fullName: string;
                   activeStatus: ActiveState;
                   role: Role;
-                }) => (
-                  <tr key={user.id} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {user.stt}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                      {user.userName}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                      {user.fullName}
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <span
-                        className={`font-medium ${
-                          user.activeStatus === ActiveState.ACTIVE
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {activeStatusTranslation[user.activeStatus]}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {user.role}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        {hasPermission(PermissionConst.USER_UPDATE) && (
-                          <>
-                            <Link
-                              href={`/accounts/${user.id}/edit`}
-                              className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition"
-                            >
-                              <Edit size={14} />
-                              {messageTranslation.Edit}
-                            </Link>
-                            <button
-                              onClick={() => showResetPasswordForm(user)}
-                              className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition"
-                            >
-                              <UserRoundCog size={14} />
-                              {messageTranslation.ResetPassword}
-                            </button>
-                          </>
-                        )}
-                        {hasPermission(PermissionConst.USER_DELETE) && (
+                }>
+              ).map((user) => (
+                <tr key={user.id} className="hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {user.stt}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                    {user.userName}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                    {user.fullName}
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    <span
+                      className={`font-medium ${
+                        user.activeStatus === ActiveState.ACTIVE
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {activeStatusTranslation[user.activeStatus]}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {user.role}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      {hasPermission(PermissionConst.USER_UPDATE) && (
+                        <>
+                          <Link
+                            href={`/accounts/${user.id}/edit`}
+                            className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition"
+                          >
+                            <Edit size={14} />
+                            {messageTranslation.Edit}
+                          </Link>
                           <button
-                            onClick={() => handleActiveStatus(user)}
+                            onClick={() => showResetPasswordForm(user)}
                             className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition"
                           >
                             <UserRoundCog size={14} />
-                            {messageTranslation.SettingStatus}
+                            {messageTranslation.ResetPassword}
                           </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )
-              )}
+                        </>
+                      )}
+                      {hasPermission(PermissionConst.USER_DELETE) && (
+                        <button
+                          onClick={() => handleActiveStatus(user)}
+                          className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition"
+                        >
+                          <UserRoundCog size={14} />
+                          {messageTranslation.SettingStatus}
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}

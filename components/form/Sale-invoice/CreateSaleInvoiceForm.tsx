@@ -67,7 +67,7 @@ export default function CreateSaleInvoiceForm({
   useEffect(() => {
     loadServices();
     loadCompanies();
-  }, [selectedSet]); // Add selectedSet to dependencies
+  }, []); // Add selectedSet to dependencies
 
   const loadServices = async () => {
     try {

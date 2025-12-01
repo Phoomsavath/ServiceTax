@@ -44,25 +44,37 @@ export function usePagination<T>(
   const [page, setPage] = useState(defaultPage);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
 
-  const loadData = useCallback(async (p = page, currentFilters = filters) => {
-    setLoading(true);
+  const loadData = useCallback(
+    async (p = page, currentFilters = filters) => {
+      setLoading(true);
 
-    try {
-      const params = {
-        page: p,
-        limit: defaultLimit,
-        ...currentFilters,
-      };
+      try {
+        const params = {
+          page: p,
+          limit: defaultLimit,
+          ...currentFilters,
+        };
 
-      const { data: dataRes } = await api.get(apiUrl, {
-        params,
-        withCredentials: true,
-      });
+        const { data: dataRes } = await api.get(apiUrl, {
+          params,
+          withCredentials: true,
+        });
 
-      if (dataRes.data) {
-        setItems(dataRes.data);
-        setPagination(dataRes.pagination);
-      } else {
+        if (dataRes.data) {
+          setItems(dataRes.data);
+          setPagination(dataRes.pagination);
+        } else {
+          setItems([]);
+          setPagination({
+            currentPage: 1,
+            totalPages: 1,
+            totalItems: 0,
+            hasNext: false,
+            hasPrev: false,
+          });
+        }
+      } catch (err: any) {
+        console.error("Failed to load data", err);
         setItems([]);
         setPagination({
           currentPage: 1,
@@ -71,21 +83,12 @@ export function usePagination<T>(
           hasNext: false,
           hasPrev: false,
         });
+      } finally {
+        setLoading(false);
       }
-    } catch (err: any) {
-      console.error("Failed to load data", err);
-      setItems([]);
-      setPagination({
-        currentPage: 1,
-        totalPages: 1,
-        totalItems: 0,
-        hasNext: false,
-        hasPrev: false,
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [apiUrl, defaultLimit]);
+    },
+    [apiUrl, defaultLimit]
+  );
 
   const applyFilters = (newFilters: Filters) => {
     setFilters(newFilters);

@@ -53,15 +53,12 @@ export default function CreateBillForm({
     loadCompanies();
   }, []);
   useEffect(() => {
-    loadInvoices();
-  }, [selectedCompany]);
-
-  // Reset cart when company changes
-  useEffect(() => {
     if (selectedCompany) {
+      loadInvoices();
       setCart([]);
     }
   }, [selectedCompany]);
+
   const loadCompanies = async () => {
     const { data: companies } = await api.get("/companies");
     const categoriesRes = companies?.data || [];

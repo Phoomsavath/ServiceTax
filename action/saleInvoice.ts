@@ -45,24 +45,25 @@ export async function createSaleInvoice(data: SaleInvoiceData) {
         0
       );
 
+      const dateStr = date.toISOString().split("T")[0].replace(/-/g, ""); // Format: YYYYMMDD
+      const prefix = type === InvoiceType.INVOICE ? "IN" : "QU";
+
+      // Get the count of invoices/quotations created today with the same type
+      const todayCount = await prisma.saleInvoice.count({
+        where: {
+          type: type,
+          createdAt: {
+            gte: date,
+            lt: new Date(date.getTime() + 24 * 60 * 60 * 1000), // Next day
+          },
+        },
+      });
+
+      const invoiceNo = `${prefix}${dateStr}-${todayCount + 1}`;
+
       // Use transaction to ensure atomicity
       const result = await prisma.$transaction(async (tx) => {
         // Generate invoice number based on type
-        const dateStr = date.toISOString().split("T")[0].replace(/-/g, ""); // Format: YYYYMMDD
-        const prefix = type === InvoiceType.INVOICE ? "IN" : "QU";
-
-        // Get the count of invoices/quotations created today with the same type
-        const todayCount = await tx.saleInvoice.count({
-          where: {
-            type: type,
-            createdAt: {
-              gte: date,
-              lt: new Date(date.getTime() + 24 * 60 * 60 * 1000), // Next day
-            },
-          },
-        });
-
-        const invoiceNo = `${prefix}${dateStr}-${todayCount + 1}`;
 
         // 1. Create sale invoice
         const invoice = await tx.saleInvoice.create({
@@ -114,58 +115,48 @@ export async function promoteQuotationToInvoice(id: number, status: PaidType) {
       const promotedBy = session.user.id;
       const date = new Date();
       date.setUTCHours(0, 0, 0, 0); // Set to start of day for consistency
+      const dateStr = date.toISOString().split("T")[0].replace(/-/g, "");
+      const prefix = "IN";
 
-      // Use transaction to ensure atomicity
-      const result = await prisma.$transaction(async (tx) => {
-        // 1. Verify quotation exists and is valid
-        const quotation = await tx.saleInvoice.findUnique({
-          where: { id: Number(id) },
-        });
-
-        if (!quotation) throw new Error(messageTranslation.NotFound);
-        if (quotation.type !== InvoiceType.QUOTATION)
-          throw new Error(messageTranslation.Unknown);
-
-        // 2. Generate invoice number
-        const dateStr = date.toISOString().split("T")[0].replace(/-/g, "");
-        const prefix = "IN";
-
-        const todayCount = await tx.saleInvoice.count({
-          where: {
-            type: InvoiceType.INVOICE,
-            createdAt: {
-              gte: date,
-              lt: new Date(date.getTime() + 24 * 60 * 60 * 1000),
-            },
+      const todayCount = await prisma.saleInvoice.count({
+        where: {
+          type: InvoiceType.INVOICE,
+          createdAt: {
+            gte: date,
+            lt: new Date(date.getTime() + 24 * 60 * 60 * 1000),
           },
-        });
-
-        const invoiceNo = `${prefix}${dateStr}-${todayCount + 1}`;
-
-        // 3. Create new invoice
-        const newInvoice = await tx.saleInvoice.create({
-          data: {
-            saleInvoiceNo: invoiceNo,
-            companyId: quotation.companyId,
-            year: quotation.year,
-            month: quotation.month,
-            totalAmount: quotation.totalAmount,
-            quotationId: quotation.id,
-            paidStatus: status,
-            type: InvoiceType.INVOICE,
-            deliveryPoint: quotation.deliveryPoint,
-            vat: quotation.vat ?? 0,
-            createdById: promotedBy,
-          },
-          select: { id: true },
-        });
-
-        // 4. Copy service items from quotation to invoice
-
-        return newInvoice;
+        },
       });
 
-      return result;
+      const invoiceNo = `${prefix}${dateStr}-${todayCount + 1}`;
+      const quotation = await prisma.saleInvoice.findUnique({
+        where: { id: Number(id) },
+      });
+
+      if (!quotation) throw new Error(messageTranslation.NotFound);
+      if (quotation.type !== InvoiceType.QUOTATION)
+        throw new Error(messageTranslation.Unknown);
+
+      // Use transaction to ensure atomicity
+
+      const newInvoice = await prisma.saleInvoice.create({
+        data: {
+          saleInvoiceNo: invoiceNo,
+          companyId: quotation.companyId,
+          year: quotation.year,
+          month: quotation.month,
+          totalAmount: quotation.totalAmount,
+          quotationId: quotation.id,
+          paidStatus: status,
+          type: InvoiceType.INVOICE,
+          deliveryPoint: quotation.deliveryPoint,
+          vat: quotation.vat ?? 0,
+          createdById: promotedBy,
+        },
+        select: { id: true },
+      });
+
+      return newInvoice;
     },
     {
       successKey: messageTranslation.UpdatedSuccess,
@@ -203,20 +194,20 @@ export async function updateSaleInvoice(
         (sum, item) => sum + item.quantity * item.price,
         0
       );
+      const currentInvoice = await prisma.saleInvoice.findUnique({
+        where: { id: Number(id) },
+        include: {
+          quotation: true, // Parent quotation if this is an invoice
+          subSaleInvoices: true, // Child invoice if this is a quotation
+        },
+      });
+
+      if (!currentInvoice) {
+        throw new Error(messageTranslation.NotFound);
+      }
 
       const result = await prisma.$transaction(async (tx) => {
         // Get current invoice with its relationships
-        const currentInvoice = await tx.saleInvoice.findUnique({
-          where: { id: Number(id) },
-          include: {
-            quotation: true, // Parent quotation if this is an invoice
-            subSaleInvoices: true, // Child invoice if this is a quotation
-          },
-        });
-
-        if (!currentInvoice) {
-          throw new Error(messageTranslation.NotFound);
-        }
 
         // Determine what needs to be updated
         const invoicesToUpdate: number[] = [currentInvoice.id];

@@ -93,6 +93,12 @@ enum Unit {
   PERSON
 }
 
+enum Group {
+  GROUP1
+  GROUP2
+  GROUP3
+}
+
 model Service {
   id                   Int                   @id @default(autoincrement())
   activeStatus         ActiveState           @default(ACTIVE)
@@ -103,6 +109,7 @@ model Service {
   unit                 Unit                  @default(FILES)
   category             Category              @default(WAREHOUSE_SERVICE)
   sets                 Json?
+  group                Group                 @default(GROUP1)
   createdById          Int
   createdBy            User                  @relation("ServiceCreator", fields: [createdById], references: [id])
   updatedById          Int?

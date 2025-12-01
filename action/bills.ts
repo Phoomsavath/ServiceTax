@@ -37,23 +37,24 @@ export async function createReceiptService(data: ReceiptServiceData) {
         (sum, item) => sum + Number(item.totalAmount || 0),
         0
       );
+      const dateStr = date.toISOString().split("T")[0].replace(/-/g, ""); // Format: YYYYMMDD
+      const prefix = type === BillType.BILL_SERVICE ? "BL" : "RC";
+      const todayCount = await prisma.receiptService.count({
+        where: {
+          type: type,
+          createdAt: {
+            gte: date,
+            lt: new Date(date.getTime() + 24 * 60 * 60 * 1000), // Next day
+          },
+        },
+      });
+
+      const invoiceNo = `${prefix}${dateStr}-${todayCount + 1}`;
 
       // Use transaction to ensure atomicity
       const result = await prisma.$transaction(async (tx) => {
         // 1. Create receipt service
-        const dateStr = date.toISOString().split("T")[0].replace(/-/g, ""); // Format: YYYYMMDD
-        const prefix = type === BillType.BILL_SERVICE ? "BL" : "RC";
-        const todayCount = await tx.receiptService.count({
-          where: {
-            type: type,
-            createdAt: {
-              gte: date,
-              lt: new Date(date.getTime() + 24 * 60 * 60 * 1000), // Next day
-            },
-          },
-        });
 
-        const invoiceNo = `${prefix}${dateStr}-${todayCount + 1}`;
         const bill = await tx.receiptService.create({
           data: {
             companyId: companyId,
@@ -101,32 +102,33 @@ export async function promoteBillToReceiptService(id: number) {
       const date = new Date();
       date.setUTCHours(0, 0, 0, 0); // Set to start of day for consistency
 
+      const bill = await prisma.receiptService.findUnique({
+        where: { id: Number(id) },
+      });
+
+      if (!bill) throw new Error(messageTranslation.NotFound);
+      if (bill.type !== BillType.BILL_SERVICE)
+        throw new Error(messageTranslation.Unknown);
+
+      // 2. Generate invoice number
+      const dateStr = date.toISOString().split("T")[0].replace(/-/g, "");
+      const prefix = "RC";
+
+      const todayCount = await prisma.receiptService.count({
+        where: {
+          type: BillType.RECEIPT_SERVICE,
+          createdAt: {
+            gte: date,
+            lt: new Date(date.getTime() + 24 * 60 * 60 * 1000),
+          },
+        },
+      });
+
+      const invoiceNo = `${prefix}${dateStr}-${todayCount + 1}`;
+
       // Use transaction to ensure atomicity
       const result = await prisma.$transaction(async (tx) => {
         // 1. Verify bill exists and is valid
-        const bill = await tx.receiptService.findUnique({
-          where: { id: Number(id) },
-        });
-
-        if (!bill) throw new Error(messageTranslation.NotFound);
-        if (bill.type !== BillType.BILL_SERVICE)
-          throw new Error(messageTranslation.Unknown);
-
-        // 2. Generate invoice number
-        const dateStr = date.toISOString().split("T")[0].replace(/-/g, "");
-        const prefix = "RC";
-
-        const todayCount = await tx.receiptService.count({
-          where: {
-            type: BillType.RECEIPT_SERVICE,
-            createdAt: {
-              gte: date,
-              lt: new Date(date.getTime() + 24 * 60 * 60 * 1000),
-            },
-          },
-        });
-
-        const invoiceNo = `${prefix}${dateStr}-${todayCount + 1}`;
 
         // 3. Create new receipt
         const newReceipt = await tx.receiptService.create({
@@ -185,21 +187,21 @@ export async function updateReceiptService(
         0
       );
       const date = new Date();
+      const currentReceipt = await prisma.receiptService.findUnique({
+        where: { id: Number(id) },
+        include: {
+          saleInvoices: { select: { id: true } }, // Current linked invoices
+          bill: true, // Parent bill if this is a sub-bill
+          subBills: true, // Child bill if this is a parent
+        },
+      });
+
+      if (!currentReceipt) {
+        throw new Error(messageTranslation.NotFound);
+      }
 
       const result = await prisma.$transaction(async (tx) => {
         // Get current receipt with relationships
-        const currentReceipt = await tx.receiptService.findUnique({
-          where: { id: Number(id) },
-          include: {
-            saleInvoices: { select: { id: true } }, // Current linked invoices
-            bill: true, // Parent bill if this is a sub-bill
-            subBills: true, // Child bill if this is a parent
-          },
-        });
-
-        if (!currentReceipt) {
-          throw new Error(messageTranslation.NotFound);
-        }
 
         // Determine which receipts need to be updated
         const receiptsToUpdate: number[] = [currentReceipt.id];

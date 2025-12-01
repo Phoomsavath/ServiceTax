@@ -51,6 +51,7 @@ export async function GET(request: NextRequest) {
             activeStatus: true,
             price: true,
             cost: true,
+            group: true,
           },
         }),
 
