@@ -22,11 +22,13 @@ export async function GET(request: NextRequest) {
       ? parseInt(searchParams.get("limit")!)
       : undefined;
     const name = searchParams.get("name");
+    const phone = searchParams.get("phone");
 
     // Build where clause
     const where: any = {};
 
     if (name) where.name = { contains: name };
+    if (phone) where.phone = { contains: phone };
 
     // Pagination mode
     if (page && limit) {

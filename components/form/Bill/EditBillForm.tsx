@@ -92,7 +92,6 @@ export default function EditBillForm({
       const { data } = await api.get(
         `/sale-invoices?type=${InvoiceType.INVOICE}&billId=${billId}&companyId=${company.id}`
       );
-      console.log(data);
 
       setInvoices(data.success ? data.data : []);
     } catch (error) {

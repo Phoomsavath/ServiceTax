@@ -149,11 +149,23 @@ export default function ViewSaleInvoice({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
                   <div className="font-medium text-gray-900 text-xs">
-                    {(item.details || "N/A")
-                      .split(",")
-                      .map((detail: string, index: number) => (
-                        <div key={index}>{detail}</div>
-                      ))}
+                    {Array.isArray(item.details) ? (
+                      item.details.length > 0 ? (
+                        item.details.map((detail: string, index: number) => (
+                          <div key={index}>{detail.trim()}</div>
+                        ))
+                      ) : (
+                        <div>N/A</div>
+                      )
+                    ) : item.details && item.details.trim() !== "" ? (
+                      item.details
+                        .split(",")
+                        .map((detail: string, index: number) => (
+                          <div key={index}>{detail.trim()}</div>
+                        ))
+                    ) : (
+                      <div>N/A</div>
+                    )}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
@@ -408,11 +420,25 @@ export default function ViewSaleInvoice({
                         </td>
                         <td className="px-6 py-4 text-right whitespace-nowrap">
                           <div className="font-medium text-gray-900 text-xs">
-                            {(item.details || "N/A")
-                              .split(",")
-                              .map((detail: string, index: number) => (
-                                <div key={index}>{detail}</div>
-                              ))}
+                            {Array.isArray(item.details) ? (
+                              item.details.length > 0 ? (
+                                item.details.map(
+                                  (detail: string, index: number) => (
+                                    <div key={index}>{detail.trim()}</div>
+                                  )
+                                )
+                              ) : (
+                                <div>N/A</div>
+                              )
+                            ) : item.details && item.details.trim() !== "" ? (
+                              item.details
+                                .split(",")
+                                .map((detail: string, index: number) => (
+                                  <div key={index}>{detail.trim()}</div>
+                                ))
+                            ) : (
+                              <div>N/A</div>
+                            )}
                           </div>
                         </td>
                         <td className="px-4 py-3 text-right text-sm text-gray-900">

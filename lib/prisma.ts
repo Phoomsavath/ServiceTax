@@ -14,14 +14,11 @@ async function connectWithRetry(
   for (let i = 0; i < retries; i++) {
     try {
       await client.$connect();
-      console.log("Prisma connected");
       return client;
     } catch (err) {
-      console.log(`DB connect failed. Retry ${i + 1}/${retries}...`);
       await wait(delay);
     }
   }
-  console.error("❌ Failed to connect to DB after retries.");
   return client; // ปล่อยต่อ แต่จะ error ถ้าถาม DB จริง ๆ
 }
 

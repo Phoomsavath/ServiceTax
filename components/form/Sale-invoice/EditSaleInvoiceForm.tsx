@@ -91,8 +91,6 @@ export default function EditSaleInvoiceForm({
         })
       );
       setCart(cartItems);
-
-      // Load categories
     } catch (error) {
       onCancel();
     } finally {
@@ -188,6 +186,7 @@ export default function EditSaleInvoiceForm({
         quantity: item.quantity,
         price: item.price,
         cost: item.cost,
+        details: item.details,
       })),
     };
     showProcessing();
@@ -233,7 +232,7 @@ export default function EditSaleInvoiceForm({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category
+                {messageTranslation.Category}
               </label>
               <select
                 value={selectedCategory}
@@ -422,6 +421,7 @@ export default function EditSaleInvoiceForm({
                     </span>
                     <input
                       type="text"
+                      placeholder="Ex: 4072ອພ,7085ກງ"
                       value={item.details}
                       onChange={(e) =>
                         updateDetails(item.id, e.target.value || "")

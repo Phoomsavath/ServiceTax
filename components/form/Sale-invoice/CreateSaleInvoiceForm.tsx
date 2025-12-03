@@ -270,7 +270,7 @@ export default function CreateSaleInvoiceForm({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category
+                {messageTranslation.Category}
               </label>
               <select
                 value={selectedCategory}
@@ -505,7 +505,7 @@ export default function CreateSaleInvoiceForm({
                     <input
                       type="text"
                       value={item.details}
-                      placeholder="7804,5080,9004,1157"
+                      placeholder="Ex: 4072ອພ,7085ກງ"
                       onChange={(e) => updateDetails(item.id, e.target.value)}
                       className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />

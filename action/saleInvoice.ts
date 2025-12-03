@@ -91,7 +91,9 @@ export async function createSaleInvoice(data: SaleInvoiceData) {
             quantity: item.quantity,
             price: item.price,
             cost: item.cost,
-            details: item.details,
+            details: item.details
+              ? item.details.split(",").map((x) => x.trim())
+              : [],
             vat: 0,
           })),
         });
@@ -253,7 +255,9 @@ export async function updateSaleInvoice(
             quantity: item.quantity,
             price: item.price,
             cost: item.cost,
-            details: item.details,
+            details: item.details
+              ? item.details.split(",").map((x) => x.trim())
+              : [],
             vat: 0,
           }))
         );

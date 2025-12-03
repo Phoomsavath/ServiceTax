@@ -74,7 +74,6 @@ export function usePagination<T>(
           });
         }
       } catch (err: any) {
-        console.error("Failed to load data", err);
         setItems([]);
         setPagination({
           currentPage: 1,
