@@ -116,6 +116,12 @@ function CreateAccountPage() {
     <div className="relative flex items-center justify-center p-4 overflow-hidden">
       <div className="flex justify-center items-center w-full">
         <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md">
+          <button
+            onClick={() => router.back()}
+            className="text-sm text-gray-600 hover:text-blue-600 mb-2 flex items-center gap-1"
+          >
+            ← {messageTranslation.Back}
+          </button>
           <h2 className="text-2xl font-bold text-center text-gray-800">
             create
           </h2>

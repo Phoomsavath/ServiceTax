@@ -11,8 +11,14 @@ import {
   messageTranslation,
   PaidStatusTranslation,
   searchBy,
+  SetTranslation,
 } from "@/lib/constant";
-import { Category, InvoiceType, PaidType } from "@prisma/client";
+import {
+  Category,
+  InvoiceType,
+  PaidType,
+  Set as SetPrisma,
+} from "@prisma/client";
 import { createSaleInvoice } from "@/action/saleInvoice";
 
 interface CreateInvoiceFormProps {
@@ -55,6 +61,7 @@ export default function CreateSaleInvoiceForm({
   const [selectedPaidStatus, setSelectedPaidStatus] = useState<PaidType>(
     PaidType.UNPAID
   );
+  const [selectSetInvoice, setSelectSetInvoice] = useState<string>("");
   const [selectedSet, setSelectedSet] = useState<string>(""); // New state for selected set
 
   useEffect(() => {
@@ -198,6 +205,7 @@ export default function CreateSaleInvoiceForm({
     }
 
     const saleData = {
+      set: selectSetInvoice as SetPrisma,
       deliveryPoint: deliveryPoint.trim(),
       companyId: parseInt(selectedCompany),
       status: selectedPaidStatus,
@@ -412,6 +420,27 @@ export default function CreateSaleInvoiceForm({
             </div>
           )}
 
+          {/* Set */}
+          <div>
+            <label className="block text-sm font-medium text-gray-600">
+              {messageTranslation.Category}
+            </label>
+            <select
+              value={selectSetInvoice}
+              onChange={(e) => setSelectSetInvoice(e.target.value)}
+              className="w-full mt-2 p-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
+            >
+              <option value="" disabled>
+                -- {messageTranslation.Category} --
+              </option>
+              {Object.values(SetPrisma).map((p) => (
+                <option key={p} value={p}>
+                  {SetTranslation[p]}
+                </option>
+              ))}
+            </select>
+          </div>
           {/* Company Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

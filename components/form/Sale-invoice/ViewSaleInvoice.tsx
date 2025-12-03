@@ -10,10 +10,11 @@ import { useApiWithAlert } from "@/lib/apiWithAlert";
 import {
   GroupTranslation,
   messageTranslation,
+  SetTranslation,
   UnitTranslation,
 } from "@/lib/constant";
 import Loader from "@/components/Loader";
-import { Group, Unit } from "@prisma/client";
+import { Group, Set, Unit } from "@prisma/client";
 
 // Define the Group enum
 
@@ -215,6 +216,7 @@ export default function ViewSaleInvoice({
                 ←{messageTranslation.Back}
               </button>
               <h1 className="text-3xl font-bold text-gray-800">{textOnly}</h1>
+              {SetTranslation[invoice.set as Set]}
               <p className="text-gray-600 mt-1">
                 {textOnly}: {invoice.saleInvoiceNo}
               </p>
@@ -328,11 +330,7 @@ export default function ViewSaleInvoice({
                   <h1 className="text-xl font-semibold text-gray-700">
                     {textOnly}
                   </h1>
-                  {selectedGroup !== "all" && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      Group: {selectedGroup}
-                    </p>
-                  )}
+                  {SetTranslation[invoice.set as Set]}
                 </div>
               </div>
             </div>

@@ -117,10 +117,10 @@ export default function ViewBill({
               </th>
             )}
             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-              {messageTranslation.TotalAmount}
+              {messageTranslation.CreatedAt}
             </th>
             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-              {messageTranslation.CreatedAt}
+              {messageTranslation.TotalAmount}
             </th>
           </tr>
         </thead>
@@ -148,11 +148,11 @@ export default function ViewBill({
                   </span>
                 </td>
               )}
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 font-medium">
-                {formatCurrency(item.totalAmount)}
-              </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
                 {formatDate(item.createdAt)}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 font-medium">
+                {formatCurrency(item.totalAmount)}
               </td>
             </tr>
           ))}
@@ -160,7 +160,7 @@ export default function ViewBill({
         <tfoot className="bg-gray-50">
           <tr>
             <td
-              colSpan={showPaidStatus ? 3 : 2}
+              colSpan={4}
               className="px-6 py-4 text-right font-semibold text-gray-700"
             >
               {messageTranslation.TotalAmount}:
@@ -367,10 +367,10 @@ export default function ViewBill({
                       ເລກທີ່ / Invoice No
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
-                      ຍອດລວມ / Total
+                      ວັນທີ / Date
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
-                      ວັນທີ / Date
+                      ຍອດລວມ / Total
                     </th>
                   </tr>
                 </thead>
@@ -386,10 +386,10 @@ export default function ViewBill({
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right text-sm text-gray-900">
-                        {formatCurrency(item.totalAmount)}
+                        {formatDate(item.createdAt)}
                       </td>
                       <td className="px-4 py-3 text-right text-sm text-gray-900">
-                        {formatDate(item.createdAt)}
+                        {formatCurrency(item.totalAmount)}
                       </td>
                     </tr>
                   ))}
@@ -403,7 +403,7 @@ export default function ViewBill({
               <tfoot className="bg-gray-50">
                 <tr>
                   <td
-                    colSpan={3}
+                    colSpan={4}
                     className="px-4 py-4 text-right font-semibold text-gray-700 text-base"
                   >
                     ຍອດລວມທັງໝົດ / Total Amount:

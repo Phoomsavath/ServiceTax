@@ -57,6 +57,7 @@ export async function GET(request: NextRequest) {
           where,
           select: {
             id: true,
+            set: true,
             saleInvoiceNo: true,
             company: { select: { name: true } },
             totalAmount: true,

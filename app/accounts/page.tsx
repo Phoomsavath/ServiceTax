@@ -19,6 +19,7 @@ import {
   filter,
   messageTranslation,
   PermissionConst,
+  RoleTranslation,
   searchBy,
 } from "@/lib/constant";
 import Link from "next/link";
@@ -274,7 +275,7 @@ export default function AccountsPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.role}
+                    {RoleTranslation[user.role as Role]}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">

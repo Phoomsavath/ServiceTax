@@ -14,9 +14,10 @@ import {
   PaidStatusTranslation,
   PermissionConst,
   searchBy,
+  SetTranslation,
   viewMode,
 } from "@/lib/constant";
-import { InvoiceType, PaidType } from "@prisma/client";
+import { InvoiceType, PaidType, Set } from "@prisma/client";
 import CreateSaleInvoiceForm from "@/components/form/Sale-invoice/CreateSaleInvoiceForm";
 import EditSaleInvoiceForm from "@/components/form/Sale-invoice/EditSaleInvoiceForm";
 import ViewSaleInvoice from "@/components/form/Sale-invoice/ViewSaleInvoice";
@@ -210,7 +211,9 @@ export default function InvoicePage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.Company}
                   </th>
-
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {messageTranslation.Category}
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {messageTranslation.UpdatedAt}
                   </th>
@@ -255,6 +258,9 @@ export default function InvoicePage() {
 
                     <td className="px-6 py-4 text-sm text-gray-800">
                       {invoice.company?.name || "-"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800">
+                      {SetTranslation[invoice.set as Set]}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {formatDate(invoice.updatedAt) || "-"}

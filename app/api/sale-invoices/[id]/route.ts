@@ -30,6 +30,7 @@ export async function GET(
         id: true,
         saleInvoiceNo: true,
         totalAmount: true,
+        set: true,
         saleInvoiceServices: {
           select: {
             id: true,
@@ -38,7 +39,13 @@ export async function GET(
             cost: true,
             details: true,
             service: {
-              select: { id: true, name: true, group: true, unit: true },
+              select: {
+                id: true,
+                name: true,
+                group: true,
+                unit: true,
+                sets: true,
+              },
             },
           },
         },

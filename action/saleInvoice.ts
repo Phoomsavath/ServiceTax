@@ -4,11 +4,12 @@ import { messageTranslation } from "@/lib/constant";
 import { handleAction } from "@/lib/handleAction";
 import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/requirePermission";
-import { InvoiceType, PaidType, Permission } from "@prisma/client";
+import { InvoiceType, PaidType, Permission, Set } from "@prisma/client";
 
 interface SaleInvoiceData {
   companyId: number;
   status?: PaidType;
+  set: Set;
   type: InvoiceType;
   quotationId?: number;
   deliveryPoint: string;
@@ -25,8 +26,15 @@ export async function createSaleInvoice(data: SaleInvoiceData) {
   return handleAction(
     async () => {
       const session = await requirePermission(Permission.SALE_INVOICE_CREATE);
-      const { companyId, items, status, type, quotationId, deliveryPoint } =
-        data;
+      const {
+        companyId,
+        items,
+        status,
+        type,
+        quotationId,
+        deliveryPoint,
+        set,
+      } = data;
       const createdBy = session.user.id;
 
       // Validate data
@@ -75,6 +83,7 @@ export async function createSaleInvoice(data: SaleInvoiceData) {
             totalAmount: totalAmount,
             paidStatus: status,
             createdById: createdBy,
+            set: set,
             type: type,
             deliveryPoint: deliveryPoint,
             quotationId: quotationId,
@@ -149,6 +158,7 @@ export async function promoteQuotationToInvoice(id: number, status: PaidType) {
           month: quotation.month,
           totalAmount: quotation.totalAmount,
           quotationId: quotation.id,
+          set: quotation.set,
           paidStatus: status,
           type: InvoiceType.INVOICE,
           deliveryPoint: quotation.deliveryPoint,
@@ -167,6 +177,7 @@ export async function promoteQuotationToInvoice(id: number, status: PaidType) {
   );
 }
 interface UpdateSaleInvoiceData {
+  set: Set;
   items: Array<{
     serviceId: number;
     quantity: number;
@@ -184,7 +195,7 @@ export async function updateSaleInvoice(
     async () => {
       const session = await requirePermission(Permission.SALE_INVOICE_UPDATE);
       const updatedBy = session.user.id;
-      const { items } = data;
+      const { items, set } = data;
       const date = new Date();
       // Validate data
       if (!items?.length) {
@@ -243,10 +254,10 @@ export async function updateSaleInvoice(
           data: {
             totalAmount: totalAmount,
             updatedById: updatedBy,
+            set: set,
             updatedAt: date,
           },
         });
-
         // STEP 3: Create new service items for ALL affected records
         const serviceItemsToCreate = invoicesToUpdate.flatMap((invoiceId) =>
           data.items.map((item) => ({

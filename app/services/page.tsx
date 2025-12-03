@@ -6,7 +6,7 @@ import Pagination from "@/components/Pagination";
 import Swal from "sweetalert2";
 import { useAlert } from "@/app/hooks/useAlert";
 
-import { ActiveState, Category, Group, Unit } from "@prisma/client";
+import { ActiveState, Category, Group, Set, Unit } from "@prisma/client";
 import { useAuth } from "@/app/hooks/useAuth";
 import { formatCurrency } from "@/lib/getCurrencySymbol";
 import { usePagination } from "@/app/hooks/usePagination";
@@ -132,7 +132,7 @@ export default function ServicesPage() {
             background-color: #fff;
           "
         >
-          ${Object.values(Sets)
+          ${Object.values(Set)
             .map(
               (s) => `
                 <div style="margin-bottom: 8px;">

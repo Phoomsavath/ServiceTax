@@ -1,4 +1,12 @@
-import { ActiveState, Category, Group, PaidType, Unit } from "@prisma/client";
+import {
+  ActiveState,
+  Category,
+  Group,
+  PaidType,
+  Role,
+  Set,
+  Unit,
+} from "@prisma/client";
 
 export const timeToken = 60 * 60 * 10; //10h ;
 export const initialState = { success: false, message: "" };
@@ -184,11 +192,15 @@ export const UnitTranslation: Record<Unit, string> = {
   PERSON: "ຄົນ",
 };
 
-export enum Sets {
-  "IM8_IMPORT" = "IM8_IMPORT",
-  "IM4_IMPORT" = "IM4_IMPORT",
-  "IM5_IMPORT" = "IM5_IMPORT",
-  "EX8_EXPORT" = "EX8_EXPORT",
-  "EX5_EXPORT" = "EX5_EXPORT",
-  "EX4_EXPORT" = "EX4_EXPORT",
-}
+export const RoleTranslation: Record<Role, string> = {
+  ADMIN: "ແອັດມິນ",
+  EMPLOYEE: "ພະນັກງານ",
+};
+export const SetTranslation: Record<Set, string> = {
+  IM8_IMPORT: "IMPORT 8",
+  IM4_IMPORT: "IMPORT 4",
+  IM5_IMPORT: "IMPORT 5",
+  EX8_EXPORT: "EXPORT 8",
+  EX5_EXPORT: "EXPORT 5",
+  EX4_EXPORT: "EXPORT 4",
+};

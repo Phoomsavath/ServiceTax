@@ -11,9 +11,15 @@ import {
   edit,
   messageTranslation,
   PaidStatusTranslation,
+  SetTranslation,
 } from "@/lib/constant";
 import Loader from "@/components/Loader";
-import { Category, InvoiceType, PaidType } from "@prisma/client";
+import {
+  Category,
+  InvoiceType,
+  PaidType,
+  Set as SetPrisma,
+} from "@prisma/client";
 import { updateSaleInvoice } from "@/action/saleInvoice";
 interface EditInvoiceFormProps {
   invoiceId: number;
@@ -53,10 +59,11 @@ export default function EditSaleInvoiceForm({
   const [selectedPaidStatus, setSelectedPaidStatus] = useState<PaidType>(
     PaidType.UNPAID
   );
+  const [selectSetInvoice, setSelectSetInvoice] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [company, setCompany] = useState<string>("");
   const [invoiceNo, setInvoiceNo] = useState("");
-
+  const [selectedSet, setSelectedSet] = useState<string>(""); // New state for selected set
   useEffect(() => {
     loadInitialData();
     loadServices();
@@ -75,7 +82,7 @@ export default function EditSaleInvoiceForm({
       const invoice = invoiceResponse.data;
 
       setCompany(invoice.company.name);
-
+      setSelectSetInvoice(invoice.set);
       // Set editable fields
       setInvoiceNo(invoice.saleInvoiceNo);
       // Load cart items from invoice
@@ -87,7 +94,9 @@ export default function EditSaleInvoiceForm({
           price: item.price,
           cost: item.cost,
           quantity: item.quantity,
-          details: item.details || "",
+          details: Array.isArray(item.details)
+            ? item.details.join(",")
+            : item.details || "",
         })
       );
       setCart(cartItems);
@@ -96,6 +105,15 @@ export default function EditSaleInvoiceForm({
     } finally {
       setLoading(false);
     }
+  };
+  const getAvailableSets = () => {
+    const setsSet = new Set<string>();
+    services.forEach((service) => {
+      if (Array.isArray(service.sets)) {
+        service.sets.forEach((set: string) => setsSet.add(set));
+      }
+    });
+    return Array.from(setsSet).sort();
   };
 
   const loadServices = async () => {
@@ -181,6 +199,7 @@ export default function EditSaleInvoiceForm({
     }
 
     const updateData = {
+      set: selectSetInvoice as SetPrisma,
       items: cart.map((item) => ({
         serviceId: item.serviceId,
         quantity: item.quantity,
@@ -206,7 +225,52 @@ export default function EditSaleInvoiceForm({
   if (loading) {
     return <Loader />;
   }
+  const availableSets = getAvailableSets();
+  const addSetToCart = () => {
+    if (!selectedSet) {
+      showWarning("Please select a set first");
+      return;
+    }
 
+    const servicesInSet = services.filter(
+      (service) =>
+        Array.isArray(service.sets) && service.sets.includes(selectedSet)
+    );
+
+    if (servicesInSet.length === 0) {
+      showWarning("No services found in this set");
+      return;
+    }
+
+    // Create new cart items for services not already in cart
+    const newItems: CartItem[] = [];
+    const updatedCart = [...cart];
+
+    servicesInSet.forEach((service, index) => {
+      const existingItemIndex = updatedCart.findIndex(
+        (item) => item.serviceId === service.id
+      );
+
+      if (existingItemIndex >= 0) {
+        // If item exists, increment quantity
+        updatedCart[existingItemIndex].quantity += 1;
+      } else {
+        // If item doesn't exist, create new item with unique ID
+        newItems.push({
+          id: Date.now() + index, // Add index to make IDs unique
+          serviceId: service.id,
+          name: service.name,
+          price: service.price || 0,
+          cost: service.cost || 0,
+          quantity: 1,
+          details: "",
+        });
+      }
+    });
+
+    // Combine updated cart with new items
+    setCart([...updatedCart, ...newItems]);
+  };
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Left Side - Products */}
@@ -247,6 +311,36 @@ export default function EditSaleInvoiceForm({
                   </option>
                 ))}
               </select>
+            </div>
+            {/* Filter by Set */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {messageTranslation.Set}
+              </label>
+              <select
+                value={selectedSet}
+                onChange={(e) => setSelectedSet(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              >
+                <option value="">-- All Sets --</option>
+                {availableSets.map((set) => (
+                  <option key={set} value={set}>
+                    {set}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Add Set Button */}
+            <div className="flex items-end">
+              <button
+                onClick={addSetToCart}
+                disabled={!selectedSet}
+                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <Plus size={18} />
+                Add Entire Set to Cart
+              </button>
             </div>
           </div>
         </div>
@@ -309,6 +403,27 @@ export default function EditSaleInvoiceForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 text-sm cursor-not-allowed"
               placeholder="PO-202410-0001"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-600">
+              {messageTranslation.Category}
+            </label>
+            <select
+              value={selectSetInvoice}
+              onChange={(e) => setSelectSetInvoice(e.target.value)}
+              className="w-full mt-2 p-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
+            >
+              <option value="" disabled>
+                -- {messageTranslation.Category} --
+              </option>
+              {Object.values(SetPrisma).map((p) => (
+                <option key={p} value={p}>
+                  {SetTranslation[p]}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Customer - Read Only */}

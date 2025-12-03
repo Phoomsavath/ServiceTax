@@ -76,6 +76,15 @@ model User {
   billsUpdater        ReceiptService[] @relation("BillUpdater")
 }
 
+enum Set {
+  IM8_IMPORT
+  IM4_IMPORT
+  IM5_IMPORT
+  EX8_EXPORT
+  EX5_EXPORT
+  EX4_EXPORT
+}
+
 enum Category {
   OFFICER_SERVICE
   TAX_SERVICE
@@ -133,11 +142,11 @@ model Company {
 }
 
 model SaleInvoice {
-  id            Int         @id @default(autoincrement())
-  saleInvoiceNo String
-  deliveryPoint String
-  type          InvoiceType @default(QUOTATION)
-
+  id              Int          @id @default(autoincrement())
+  saleInvoiceNo   String
+  deliveryPoint   String
+  type            InvoiceType  @default(QUOTATION)
+  set             Set          @default(IM4_IMPORT)
   quotation       SaleInvoice? @relation("SaleInvoiceSelf", fields: [quotationId], references: [id])
   quotationId     Int?         @unique
   subSaleInvoices SaleInvoice? @relation("SaleInvoiceSelf")

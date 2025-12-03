@@ -15,9 +15,10 @@ import {
   PaidStatusTranslation,
   PermissionConst,
   searchBy,
+  SetTranslation,
   viewMode,
 } from "@/lib/constant";
-import { InvoiceType, PaidType } from "@prisma/client";
+import { InvoiceType, PaidType, Set } from "@prisma/client";
 import CreateSaleInvoiceForm from "@/components/form/Sale-invoice/CreateSaleInvoiceForm";
 import EditSaleInvoiceForm from "@/components/form/Sale-invoice/EditSaleInvoiceForm";
 import ViewSaleInvoice from "@/components/form/Sale-invoice/ViewSaleInvoice";
@@ -285,10 +286,10 @@ export default function QuotationPage() {
                     {messageTranslation.InvoiceNo}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.PaidStatus}
+                    {messageTranslation.Company}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {messageTranslation.Company}
+                    {messageTranslation.Category}
                   </th>
 
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -320,11 +321,12 @@ export default function QuotationPage() {
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {invoice.subSaleInvoices?.saleInvoiceNo || "-"}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-800">
-                      {invoice.paidStatus || "-"}
-                    </td>
+
                     <td className="px-6 py-4 text-sm text-gray-800">
                       {invoice.company?.name || "-"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800">
+                      {SetTranslation[invoice.set as Set]}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-800">
                       {formatCurrency(invoice.totalAmount)}
