@@ -9,9 +9,13 @@ import { useReactToPrint } from "react-to-print";
 import { formatDate } from "@/lib/formateTime";
 import { useApiWithAlert } from "@/lib/apiWithAlert";
 import { useRouter } from "next/navigation";
-import { messageTranslation, PaidStatusTranslation } from "@/lib/constant";
+import {
+  messageTranslation,
+  PaidStatusTranslation,
+  SetTranslation,
+} from "@/lib/constant";
 import Loader from "@/components/Loader";
-import { PaidType } from "@prisma/client";
+import { PaidType, Set } from "@prisma/client";
 
 interface ViewInvoiceFormProps {
   billId: number;
@@ -117,6 +121,9 @@ export default function ViewBill({
               </th>
             )}
             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {messageTranslation.Category}
+            </th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
               {messageTranslation.CreatedAt}
             </th>
             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -149,6 +156,9 @@ export default function ViewBill({
                 </td>
               )}
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                {SetTranslation[item.set as Set]}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
                 {formatDate(item.createdAt)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 font-medium">
@@ -160,7 +170,7 @@ export default function ViewBill({
         <tfoot className="bg-gray-50">
           <tr>
             <td
-              colSpan={4}
+              colSpan={5}
               className="px-6 py-4 text-right font-semibold text-gray-700"
             >
               {messageTranslation.TotalAmount}:
@@ -246,9 +256,7 @@ export default function ViewBill({
               <DollarSign className="text-blue-600" size={20} />
               <div>
                 <p className="text-sm text-gray-500">
-                  {selectedPaidStatus === "all"
-                    ? "Total Amount"
-                    : "Filtered Total"}
+                  {messageTranslation.TotalAmount}
                 </p>
                 <p className="font-semibold">{formatCurrency(filteredTotal)}</p>
               </div>
@@ -367,6 +375,9 @@ export default function ViewBill({
                       ເລກທີ່ / Invoice No
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
+                      ປະເພດ / Category
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
                       ວັນທີ / Date
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">
@@ -384,6 +395,9 @@ export default function ViewBill({
                         <div className="font-medium text-gray-900">
                           {item.saleInvoiceNo}
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                        {SetTranslation[item.set as Set]}
                       </td>
                       <td className="px-4 py-3 text-right text-sm text-gray-900">
                         {formatDate(item.createdAt)}
@@ -403,7 +417,7 @@ export default function ViewBill({
               <tfoot className="bg-gray-50">
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-4 py-4 text-right font-semibold text-gray-700 text-base"
                   >
                     ຍອດລວມທັງໝົດ / Total Amount:

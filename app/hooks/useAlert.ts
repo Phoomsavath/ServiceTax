@@ -6,7 +6,7 @@ export function useAlert() {
   const showSuccess = (message: string) => {
     Swal.fire({
       icon: "success",
-      title: "Success!",
+      title: messageTranslation.Success,
       text: message,
       confirmButtonColor: "#10b981",
       confirmButtonText: "Got it!",
@@ -31,7 +31,7 @@ export function useAlert() {
   const showError = (message: string) => {
     Swal.fire({
       icon: "error",
-      title: "Oops!",
+      title: messageTranslation.Error,
       text: message,
       confirmButtonColor: "#ef4444",
       confirmButtonText: "Understood",
@@ -56,7 +56,7 @@ export function useAlert() {
   const showWarning = (message: string) => {
     Swal.fire({
       icon: "warning",
-      title: "Heads up!",
+      title: messageTranslation.Warning,
       text: message,
       confirmButtonColor: "#f59e0b",
       confirmButtonText: "I understand",
@@ -80,7 +80,7 @@ export function useAlert() {
 
   const showProcessing = () => {
     Swal.fire({
-      title: "Processing...",
+      title: messageTranslation.Processing,
       html: "<div class='text-gray-600 mt-2'>Please wait a moment</div>",
       allowOutsideClick: false,
       allowEscapeKey: false,

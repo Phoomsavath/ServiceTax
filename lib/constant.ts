@@ -83,11 +83,11 @@ export enum messageTranslation {
 
   PromoteToInvoice = "ປ່ຽນເປັນໃບແຈ້ງໜີ້",
   PromoteToReceipt = "ປ່ຽນເປັນໃບເກັບຄ່າບໍລິການ",
-  PaidStatus = "ສະຖານະການຈ່າຍເງິນ",
-  UpdatedAt = "ວັນທີແກ້ໄຂລ່າສຸດ",
+  PaidStatus = "ສະຖານະການຈ່າຍ",
+  UpdatedAt = "ແກ້ໄຂລ່າສຸດ",
 
-  CreatedSuccess = "ການສ້າງສຳເລັດ",
-  CreateFailed = "ການສ້າງຜິດພາດ",
+  CreatedSuccess = "ສ້າງສຳເລັດ",
+  CreateFailed = "ສ້າງຜິດພາດ",
   UpdatedSuccess = "ການອັບເດດສຳເລັດ",
   UpdateFailed = "ການອັບເດດຜິດພາດ",
   DeletedSuccess = "ລົບສຳເລັດ",
@@ -174,6 +174,8 @@ export const GroupTranslation: Record<Group, string> = {
   GROUP1: "ກຸ່ມ1",
   GROUP2: "ກຸ່ມ2",
   GROUP3: "ກຸ່ມ3",
+  GROUP4: "ກຸ່ມ4",
+  GROUP5: "ກຸ່ມ5",
 };
 
 export const PaidStatusTranslation: Record<PaidType, string> = {

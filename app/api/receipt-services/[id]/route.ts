@@ -47,6 +47,7 @@ export async function GET(
             saleInvoiceNo: true,
             totalAmount: true,
             createdAt: true,
+            set: true,
           },
         },
       },
